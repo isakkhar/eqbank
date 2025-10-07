@@ -125,6 +125,7 @@ STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 LOGIN_REDIRECT_URL = 'dashboard' # Name of the URL to redirect to after a successful login
 LOGOUT_REDIRECT_URL = 'login'    # Name of the URL to redirect to after a logout
 LOGIN_URL = 'login'              # Name of the URL to redirect to for pages that require login
+# AUTH_USER_MODEL = 'core.CustomUser'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

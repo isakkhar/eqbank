@@ -1,0 +1,70 @@
+{
+  "divisions": [
+    {"id": "dhaka", "name": "ঢাকা", "bn_name": "ঢাকা"},
+    {"id": "chattogram", "name": "চট্টগ্রাম", "bn_name": "চট্টগ্রাম"},
+    {"id": "rajshahi", "name": "রাজশাহী", "bn_name": "রাজশাহী"},
+    {"id": "khulna", "name": "খুলনা", "bn_name": "খুলনা"},
+    {"id": "barishal", "name": "বরিশাল", "bn_name": "বরিশাল"},
+    {"id": "sylhet", "name": "সিলেট", "bn_name": "সিলেট"},
+    {"id": "rangpur", "name": "রংপুর", "bn_name": "রংপুর"},
+    {"id": "mymensingh", "name": "ময়মনসিংহ", "bn_name": "ময়মনসিংহ"}
+  ],
+  "districts": {
+    "dhaka": [
+      {"id": "dhaka", "name": "Dhaka", "bn_name": "ঢাকা"},
+      {"id": "gazipur", "name": "Gazipur", "bn_name": "গাজীপুর"},
+      {"id": "narayanganj", "name": "Narayanganj", "bn_name": "নারায়ণগঞ্জ"},
+      {"id": "narsingdi", "name": "Narsingdi", "bn_name": "নরসিংদী"},
+      {"id": "manikganj", "name": "Manikganj", "bn_name": "মানিকগঞ্জ"},
+      {"id": "munshiganj", "name": "Munshiganj", "bn_name": "মুন্সিগঞ্জ"},
+      {"id": "faridpur", "name": "Faridpur", "bn_name": "ফরিদপুর"},
+      {"id": "gopalganj", "name": "Gopalganj", "bn_name": "গোপালগঞ্জ"},
+      {"id": "madaripur", "name": "Madaripur", "bn_name": "মাদারীপুর"},
+      {"id": "rajbari", "name": "Rajbari", "bn_name": "রাজবাড়ী"},
+      {"id": "shariatpur", "name": "Shariatpur", "bn_name": "শরীয়তপুর"},
+      {"id": "kishoreganj", "name": "Kishoreganj", "bn_name": "কিশোরগঞ্জ"},
+      {"id": "tangail", "name": "Tangail", "bn_name": "টাঙ্গাইল"}
+    ],
+    "chattogram": [
+      {"id": "chattogram", "name": "Chattogram", "bn_name": "চট্টগ্রাম"},
+      {"id": "coxsbazar", "name": "Cox's Bazar", "bn_name": "কক্সবাজার"},
+      {"id": "rangamati", "name": "Rangamati", "bn_name": "রাঙ্গামাটি"},
+      {"id": "bandarban", "name": "Bandarban", "bn_name": "বান্দরবান"},
+      {"id": "khagrachhari", "name": "Khagrachhari", "bn_name": "খাগড়াছড়ি"},
+      {"id": "feni", "name": "Feni", "bn_name": "ফেনী"},
+      {"id": "lakshmipur", "name": "Lakshmipur", "bn_name": "লক্ষ্মীপুর"},
+      {"id": "comilla", "name": "Comilla", "bn_name": "কুমিল্লা"},
+      {"id": "chandpur", "name": "Chandpur", "bn_name": "চাঁদপুর"},
+      {"id": "brahmanbaria", "name": "Brahmanbaria", "bn_name": "ব্রাহ্মণবাড়িয়া"},
+      {"id": "noakhali", "name": "Noakhali", "bn_name": "নোয়াখালী"}
+    ]
+  },
+  "thanas": {
+    "dhaka": [
+      {"id": "dhanmondi", "name": "Dhanmondi", "bn_name": "ধানমন্ডি"},
+      {"id": "gulshan", "name": "Gulshan", "bn_name": "গুলশান"},
+      {"id": "banani", "name": "Banani", "bn_name": "বনানী"},
+      {"id": "mirpur", "name": "Mirpur", "bn_name": "মিরপুর"},
+      {"id": "uttara", "name": "Uttara", "bn_name": "উত্তরা"},
+      {"id": "motijheel", "name": "Motijheel", "bn_name": "মতিঝিল"},
+      {"id": "ramna", "name": "Ramna", "bn_name": "রমনা"}
+    ],
+    "gazipur": [
+      {"id": "gazipur_sadar", "name": "Gazipur Sadar", "bn_name": "গাজীপুর সদর"},
+      {"id": "kaliakair", "name": "Kaliakair", "bn_name": "কালিয়াকৈর"},
+      {"id": "kapasia", "name": "Kapasia", "bn_name": "কাপাসিয়া"}
+    ]
+  },
+  "city_corporations": {
+    "dhaka": [
+      {"id": "dncc", "name": "DNCC", "bn_name": "ঢাকা উত্তর সিটি কর্পোরেশন"},
+      {"id": "dscc", "name": "DSCC", "bn_name": "ঢাকা দক্ষিণ সিটি কর্পোরেশন"}
+    ],
+    "gazipur": [
+      {"id": "gazipur_cc", "name": "Gazipur City Corporation", "bn_name": "গাজীপুর সিটি কর্পোরেশন"}
+    ],
+    "chattogram": [
+      {"id": "chattogram_cc", "name": "Chattogram City Corporation", "bn_name": "চট্টগ্রাম সিটি কর্পোরেশন"}
+    ]
+  }
+}

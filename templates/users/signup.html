@@ -5,7 +5,7 @@
         class="layout-wide customizer-hide"
         dir="ltr"
         data-skin="default"
-        data-assets-path="../../assets/"
+        data-assets-path="{% static 'assets' %}"
         data-template="vertical-menu-template"
         data-bs-theme="light">
 <head>
@@ -60,75 +60,129 @@
 
 
 {% block content %}
-    <div class="container-xxl">
-        <div class="authentication-wrapper authentication-basic container-p-y">
-            <div class="authentication-inner py-6">
-                <!-- Register Card -->
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Logo -->
-                        <div class="app-brand justify-content-center mb-6">
-                            <a href="{% url 'signup' %}" class="app-brand-link">
-                                <span class="app-brand-text demo text-heading fw-bold">ই-প্রশ্ন ব্যাংক</span>
-                            </a>
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner py-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="mb-1">নতুন একাউন্ট তৈরী করুন 🚀</h4>
+                    <p class="mb-6">আপনার তথ্য দিয়ে রেজিস্ট্রেশন সম্পন্ন করুন</p>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
                         </div>
-                        <!-- /Logo -->
-                        <h4 class="mb-1">নতুন একাউন্ট তৈরী করুন 🚀</h4>
-                        <p class="mb-6">আপনার তথ্য দিয়ে রেজিস্ট্রেশন সম্পন্ন করুন</p>
+                    {% endif %}
 
-                        <!-- Django Form Errors -->
-                        {% if form.non_field_errors or form.errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <p>{{ field.label }}: {{ error }}</p>
-                                    {% endfor %}
-                                {% endfor %}
+                    <form id="formAuthentication" class="mb-6" method="POST">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                            {{ form.username }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.division.id_for_label }}" class="form-label">{{ form.division.label }}</label>
+                            {{ form.division }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.district.id_for_label }}" class="form-label">{{ form.district.label }}</label>
+                            {{ form.district }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.thana.id_for_label }}" class="form-label">{{ form.thana.label }}</label>
+                            {{ form.thana }}
+                        </div>
+
+                        <div class="mb-3 form-password-toggle">
+                            <label class="form-label" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                            <div class="input-group input-group-merge">
+                                {{ form.password }}
                             </div>
-                        {% endif %}
+                        </div>
 
-
-                        <form id="formAuthentication" class="mb-6" method="POST">
-                            {% csrf_token %}
-
-                            <div class="mb-3">
-                                <label for="{{ form.username.id_for_label }}"
-                                       class="form-label">{{ form.username.label }}</label>
-                                {{ form.username }}
+                        <div class="mb-3 form-password-toggle">
+                            <label class="form-label" for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                            <div class="input-group input-group-merge">
+                                {{ form.password2 }}
                             </div>
+                        </div>
 
-                            <div class="mb-3 form-password-toggle">
-                                <label class="form-label"
-                                       for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
-                                <div class="input-group input-group-merge">
-                                    {{ form.password1 }}
-                                </div>
-                            </div>
+                        <button class="btn btn-primary d-grid w-100" type="submit">একাউন্ট তৈরী করুন</button>
+                    </form>
 
-                            <div class="mb-3 form-password-toggle">
-                                <label class="form-label"
-                                       for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
-                                <div class="input-group input-group-merge">
-                                    {{ form.password2 }}
-                                </div>
-                            </div>
-                            <button class="btn btn-info d-grid w-100" type="submit">একাউন্ট তৈরী করুন</button>
-                        </form>
-                        <p class="text-center">
-                            <span>আপনার কি একাউন্ট করা আছে?</span>
-                            <a href="{% url 'login' %}"> <!-- Dynamic link to login page -->
-                                <span>লগইন করুন</span>
-                            </a>
-                        </p>
-                    </div>
+                    <p class="text-center">
+                        <span>আপনার কি একাউন্ট করা আছে?</span>
+                        <a href="{% url 'login' %}"><span>লগইন করুন</span></a>
+                    </p>
                 </div>
-                <!-- /Register Card -->
             </div>
         </div>
     </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const divisionSelect = document.getElementById('id_division');
+    const districtSelect = document.getElementById('id_district');
+    const thanaSelect = document.getElementById('id_thana');
+
+    const districtUrl = "{% url 'ajax_load_districts' %}";
+    const thanaUrl = "{% url 'ajax_load_thanas' %}";
+
+    // Initially disable district and thana selects
+    districtSelect.disabled = true;
+    thanaSelect.disabled = true;
+
+    divisionSelect.addEventListener('change', function() {
+        const division = this.value;
+        districtSelect.innerHTML = '<option value="">----- জেলা নির্বাচন করুন -----</option>';
+        thanaSelect.innerHTML = '<option value="">----- থানা নির্বাচন করুন -----</option>';
+        districtSelect.disabled = true;
+        thanaSelect.disabled = true;
+
+        if (division) {
+            fetch(`${districtUrl}?division=${division}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(function(district) {
+                        const option = new Option(district, district);
+                        districtSelect.appendChild(option);
+                    });
+                    districtSelect.disabled = false;
+                })
+                .catch(error => console.error('Error fetching districts:', error));
+        }
+    });
+
+    districtSelect.addEventListener('change', function() {
+        const division = divisionSelect.value;
+        const district = this.value;
+        thanaSelect.innerHTML = '<option value="">----- থানা নির্বাচন করুন -----</option>';
+        thanaSelect.disabled = true;
+
+        if (district) {
+            fetch(`${thanaUrl}?division=${division}&district=${district}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(function(thana) {
+                        const option = new Option(thana, thana);
+                        thanaSelect.appendChild(option);
+                    });
+                    thanaSelect.disabled = false;
+                })
+                .catch(error => console.error('Error fetching thanas:', error));
+        }
+    });
+});
+</script>
 {% endblock %}
 </body>
 </html>
