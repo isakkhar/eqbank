@@ -1,0 +1,48 @@
+{% load static %}
+     <!-- Menu -->
+
+            <aside id="layout-menu" class="layout-menu menu-vertical menu">
+                <div class="app-brand demo">
+                    <a href="{% url 'dashboard' %}" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <span class="text-primary">
+                    <span class="app-brand-text demo text-heading fw-bold">ই-প্রশ্ন ব্যাংক</span>
+                </span>
+              </span>
+                    </a>
+
+{#                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">#}
+{#                        <i class="icon-base ti menu-toggle-icon d-none d-xl-block"></i>#}
+{#                        <i class="icon-base ti tabler-x d-block d-xl-none"></i>#}
+{#                    </a>#}
+                </div>
+
+                <div class="menu-inner-shadow"></div>
+
+                <ul class="menu-inner py-1">
+                    <!-- Dashboards -->
+                    <li class="menu-item open">
+                        <a href="{% url 'dashboard' %}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-smart-home"></i>
+                            <div data-i18n="ড্যাশবোর্ড">ড্যাশবোর্ড</div>
+                        </a>
+                    </li>
+                    <!-- / Dashboards -->
+                      <li class="menu-item open">
+                        <a href="{% url 'question' %}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-smart-home"></i>
+                            <div data-i18n="প্রশ্ন">প্রশ্ন</div>
+                        </a>
+                    </li>
+
+                </ul>
+            </aside>
+
+            <div class="menu-mobile-toggler d-xl-none rounded-1">
+                <a href="javascript:void(0);"
+                   class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
+                    <i class="ti tabler-menu icon-base"></i>
+                    <i class="ti tabler-chevron-right icon-base"></i>
+                </a>
+            </div>
+            <!-- / Menu -->

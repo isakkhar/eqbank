@@ -1,0 +1,65 @@
+{% extends 'users/base.html' %} {# -- প্রথম লাইনে base.html কে extend করতে হবে -- #}
+{% comment %} file: core/templates/core/about.html {% endcomment %}
+{% block title %} ই-প্রশ্ন ব্যাংক| প্রশ্ন তৈরি{% endblock %} {# -- এই পেইজের জন্য একটি আলাদা টাইটেল -- #}
+
+{% block content %} {# -- আপনার পেইজের সব মূল কন্টেন্ট এই ব্লকের ভেতরে থাকবে -- #}
+ <!-- সমান প্রস্থ, বিভিন্ন আইকন এবং টেক্সট সহ -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-border-shadow-primary h-100">
+            <div class="card-body text-center">
+                <div class="avatar mb-3">
+                    <span class="avatar-initial rounded bg-label-primary">
+                        <i class="ti ti-heart icon-28px"></i>
+                    </span>
+                </div>
+                <h5 class="card-title">মেডিকেল</h5>
+                <button type="button" class="btn btn-label-success">মেডিকেল প্রশ্ন</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-border-shadow-warning h-100">
+            <div class="card-body text-center">
+                <div class="avatar mb-3">
+                    <span class="avatar-initial rounded bg-label-warning">
+                        <i class="ti ti-stethoscope icon-28px"></i>
+                    </span>
+                </div>
+                <h5 class="card-title">ঢাকা বিশ্ববিদ্যালয় প্রশ্ন</h5>
+                <button type="button" class="btn btn-label-warning">ঢাকা বিশ্ববিদ্যালয় প্রশ্ন</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-border-shadow-info h-100">
+            <div class="card-body text-center">
+                <div class="avatar mb-3">
+                    <span class="avatar-initial rounded bg-label-info">
+                        <i class="ti ti-pill icon-28px"></i>
+                    </span>
+                </div>
+                <h5 class="card-title">চট্টগ্রাম বিশ্ববিদ্যালয় প্রশ্ন</h5>
+                <button type="button" class="btn btn-label-info">চট্টগ্রাম বিশ্ববিদ্যালয় প্রশ্ন</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-border-shadow-secondary h-100">
+            <div class="card-body text-center">
+                <div class="avatar mb-3">
+                    <span class="avatar-initial rounded bg-label-secondary">
+                        <i class="ti ti-ambulance icon-28px"></i>
+                    </span>
+                </div>
+                <h5 class="card-title">ডেন্টাল বিশ্ববিদ্যালয় প্রশ্ন</h5>
+                <button type="button" class="btn btn-label-danger">ডেন্টাল বিশ্ববিদ্যালয় প্রশ্ন</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
