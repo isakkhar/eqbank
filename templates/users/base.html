@@ -1,0 +1,134 @@
+{% load static %}
+<!doctype html>
+<html
+        lang="en"
+        class="layout-wide customizer-hide"
+        dir="ltr"
+        data-skin="default"
+        data-assets-path="{% static 'assets' %}"
+        data-template="vertical-menu-template"
+        data-bs-theme="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+    <title>ই প্রশ্ন ব্যাংক</title>
+
+    <meta name="description" content=""/>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/favicon.ico' %}"/>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <style>
+        body {
+            /* এই লাইনটি সবচেয়ে গুরুত্বপূর্ণ */
+            font-family: 'Hind Siliguri', sans-serif !important;
+
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* ... আপনার বাকি স্টাইল ... */
+    </style>
+
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/iconify-icons.css' %}"/>
+
+    <!-- Core CSS -->
+    <!-- build:css assets/vendor/css/theme.css  -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/node-waves/node-waves.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/pickr/pickr-themes.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/@form-validation/form-validation.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/pages/page-auth.css' %}"/>
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+    <script src="{% static 'assets/js/config.js' %}"></script>
+</head>
+<body>
+<div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+            <div class="app-brand demo">
+                <a href="{% url 'dashboard' %}" class="app-brand-link">
+                    <span class="app-brand-text demo menu-text fw-bold">ই-প্রশ্ন ব্যাংক</span>
+                </a>
+            </div>
+            <div class="menu-inner-shadow"></div>
+        <ul class="menu-inner py-1">
+        <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <a href="{% url 'dashboard' %}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-smart-home"></i>
+                <div>ড্যাশবোর্ড</div>
+            </a>
+        </li>
+
+        <li class="menu-item {% if request.resolver_match.url_name == 'question' %}active{% endif %}">
+            <a href="{% url 'question' %}" class="menu-link">
+{#                <i class="fa-regular fa-circle-question"></i>#}
+                <i class="menu-icon icon-base ti tabler-files"></i>
+                <div>প্রশ্ন তৈরি</div>
+            </a>
+        </li>
+
+{#        <li class="menu-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">#}
+{#            <a href="{% url 'profile' %}" class="menu-link">#}
+{#                 <i class="menu-icon tf-icons ti ti-user"></i>#}
+{#                <div>My Profile</div>#}
+{#            </a>#}
+{#        </li>#}
+{#        #}
+    </ul>
+        </aside>
+        <div class="layout-page">
+                {% include 'core/partials/navbar.html' %}
+{#            <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"#}
+{#                 id="layout-navbar">#}
+{#                <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">#}
+{#                    {% include 'users/partials/_user_dropdown.html' %}#}
+{#                </div>#}
+{#            </nav>#}
+            <div class="content-wrapper">
+                <div class="container-xxl flex-grow-1 container-p-y">
+
+                    {# ✅✅ মূল কন্টেন্ট এখানে লোড হবে ✅✅ #}
+                    {% block content %}
+                    {% endblock %}
+
+                </div>
+                <footer class="content-footer footer bg-footer-theme">
+                    <div class="container-xxl">
+                        <div class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
+                            <div> © {% now "Y" %} , made with ❤️ by <a href="#" target="_blank" class="fw-medium">ই-প্রশ্ন ব্যাংক</a></div>
+                        </div>
+                    </div>
+                </footer>
+                <div class="content-backdrop fade"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+<script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/node-waves/node-waves.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/@algolia/autocomplete-js.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/pickr/pickr.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/hammer/hammer.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/i18n/i18n.js' %}"></script>
+<script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+<script src="{% static 'assets/js/main.js' %}"></script>
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

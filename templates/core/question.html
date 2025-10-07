@@ -1,0 +1,239 @@
+{% extends 'users/base.html' %} {# -- প্রথম লাইনে base.html কে extend করতে হবে -- #}
+{% comment %} file: core/templates/core/about.html {% endcomment %}
+{% block title %}About Us | ই-প্রশ্ন ব্যাংক{% endblock %} {# -- এই পেইজের জন্য একটি আলাদা টাইটেল -- #}
+
+{% block content %} {# -- আপনার পেইজের সব মূল কন্টেন্ট এই ব্লকের ভেতরে থাকবে -- #}
+
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title mb-0">আমাদের সম্পর্কে</h4>
+        </div>
+        <div class="card-body">
+            <p>
+                ই-প্রশ্ন ব্যাংক-এ আপনাকে স্বাগতম! আমরা একটি অনলাইন প্ল্যাটফর্ম যা ছাত্রছাত্রীদের জন্য একটি সমৃদ্ধ প্রশ্ন
+                ভান্ডার তৈরি করার লক্ষ্যে কাজ করছি।
+                এখানে আপনি বিভিন্ন বিষয় এবং পরীক্ষার জন্য হাজার হাজার প্রশ্ন পাবেন যা আপনার প্রস্তুতিকে আরও শক্তিশালী
+                করবে।
+            </p>
+            <p>
+                আমাদের লক্ষ্য হলো শিক্ষার মান উন্নয়ন করা এবং সকলের জন্য জ্ঞানার্জন সহজলভ্য করা।
+            </p>
+            <div class="mb-2 border-t border-x border-gray-400 py-2 border-dashed  p-1">
+               <h5> <p class="text-center">নিচের ইনপুট ফিল্ড গুলো সিলেক্ট করে সাবমিট করুন</p></h5>
+
+            </div>
+            <div class="mb-6" style="width: 500px;">
+                <label class="form-label">প্রোগ্রাম বা পরীক্ষার নাম লিখুন</label>
+                <input type="text" class="form-control" placeholder="প্রোগ্রাম বা পরীক্ষার নাম লিখুন"/>
+            </div>
+
+
+            <div class="mb-3" style="width: 150px;">
+                <label class="form-label" for="state">ক্লাস</label>
+                <select class="form-select" id="state" required>
+                    <option value="">সিলেক্ট ক্লাস</option>
+                    <option value="প্রথম শ্রেণি">প্রথম শ্রেণি</option>
+                    <option value="দ্বিতীয় শ্রেণি">দ্বিতীয় শ্রেণি</option>
+                    <option value="তৃতীয় শ্রেণি">তৃতীয় শ্রেণি</option>
+                </select>
+            </div>
+
+
+            <div class="mb-6 mt-6" style="width: 500px;">
+                <!-- Dropdown button -->
+                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#subjectModal">
+                    বিষয় নির্বাচন করুন
+                </button>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="subjectModalLabel">বিষয় তালিকা</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <button type="button" class="btn btn-sm btn-info" id="selectAll">সব সিলেক্ট করুন
+                                </button>
+                                <button type="button" class="btn btn-sm btn-warning" id="unselectAll">সব আনসিলেক্ট
+                                    করুন
+                                </button>
+                            </div>
+
+                            <form id="subjectForm">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="math">
+                                    <label class="form-check-label" for="math">গণিত</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="science">
+                                    <label class="form-check-label" for="science">বিজ্ঞান</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="bangladesh">
+                                    <label class="form-check-label" for="bangladesh">বাংলাদেশ ও বিশ্বপরিচয়</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ict">
+                                    <label class="form-check-label" for="ict">তথ্য ও যোগাযোগ প্রযুক্তি</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="islam">
+                                    <label class="form-check-label" for="islam">ইসলাম শিক্ষা</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agriculture">
+                                    <label class="form-check-label" for="agriculture">কৃষিশিক্ষা</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="health">
+                                    <label class="form-check-label" for="health">শারীরিক শিক্ষা ও স্বাস্থ্য</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="life">
+                                    <label class="form-check-label" for="life">কর্ম ও জীবনমুখী শিক্ষা</label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="saveSelection" data-bs-dismiss="modal">সেভ
+                                করুন
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">বন্ধ করুন</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected subjects display -->
+            <div class="container mt-4 text-center">
+                <p id="selectedSubjects" class="fw-bold text-info"></p>
+            </div>
+            <div class="mb-6 mt-6" style="width: 500px;">
+                <!-- Dropdown button -->
+                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#subjectModal">
+                    অধ্যায় নির্বাচন করুন
+                </button>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="subjectModalLabel">অধ্যায় তালিকা</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <button type="button" class="btn btn-sm btn-info" id="selectAll">সব সিলেক্ট করুন
+                                </button>
+                                <button type="button" class="btn btn-sm btn-warning" id="unselectAll">সব আনসিলেক্ট
+                                    করুন
+                                </button>
+                            </div>
+
+                            <form id="subjectForm">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="math">
+                                    <label class="form-check-label" for="math">গণিত</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="science">
+                                    <label class="form-check-label" for="science">বিজ্ঞান</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="bangladesh">
+                                    <label class="form-check-label" for="bangladesh">বাংলাদেশ ও বিশ্বপরিচয়</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ict">
+                                    <label class="form-check-label" for="ict">তথ্য ও যোগাযোগ প্রযুক্তি</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="islam">
+                                    <label class="form-check-label" for="islam">ইসলাম শিক্ষা</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agriculture">
+                                    <label class="form-check-label" for="agriculture">কৃষিশিক্ষা</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="health">
+                                    <label class="form-check-label" for="health">শারীরিক শিক্ষা ও স্বাস্থ্য</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="life">
+                                    <label class="form-check-label" for="life">কর্ম ও জীবনমুখী শিক্ষা</label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="saveSelection" data-bs-dismiss="modal">সেভ
+                                করুন
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">বন্ধ করুন</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected subjects display -->
+            <div class="container mt-6 text-center">
+                <p id="selectedSubjects" class="fw-bold text-info"></p>
+            </div>
+            <div class="row mb-3" style="width: 750px;">
+                <div class="col-md-3">
+                    <label class="form-label" for="state">প্রশ্ন টাইপ</label>
+                    <select class="form-select" id="state" required>
+                        <option value="">সিলেক্ট টাইপ</option>
+                        <option value="বহু নির্বাচনি">বহু নির্বাচনি</option>
+                        <option value="সৃজনশীল">সৃজনশীল</option>
+                        <option value="সমন্বিত প্রশ্ন (সৃজঃ+বহু+সংক্ষিপ্ত+অন্যান্য)">সমন্বিত প্রশ্ন
+                            (সৃজঃ+বহু+সংক্ষিপ্ত+অন্যান্য)
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="number">সংখ্যা</label>
+                    <input type="text" class="form-control" id="number" placeholder="আপনি কতগুলা প্রশ্ন চান" required>
+                </div>
+
+            </div>
+
+            <div class="card-body">
+                <div class="demo-inline-spacing">
+                    <button type="button" class="btn btn-label-info">সাবমিট করুন</button>
+                </div>
+            </div>
+            {#        <a href="{% url 'dashboard' %}" class="btn btn-info">ড্যাশবোর্ডে ফিরে যান</a>#}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const selectAllBtn = document.getElementById('selectAll');
+        const unselectAllBtn = document.getElementById('unselectAll');
+        const checkboxes = document.querySelectorAll('#subjectForm input[type="checkbox"]');
+        {#const saveBtn = document.getElementById('saveSelection');#}
+        const selectedSubjects = document.getElementById('selectedSubjects');
+
+        // সব সিলেক্ট
+        selectAllBtn.addEventListener('click', () => {
+            checkboxes.forEach(cb => cb.checked = true);
+        });
+
+        // সব আনসিলেক্ট
+        unselectAllBtn.addEventListener('click', () => {
+            checkboxes.forEach(cb => cb.checked = false);
+        });
+    </script>
+{% endblock %}
