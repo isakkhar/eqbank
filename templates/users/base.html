@@ -79,6 +79,13 @@
                 <div>প্রশ্ন তৈরি</div>
             </a>
         </li>
+           <li class="menu-item {% if request.resolver_match.url_name == 'question_bank' %}active{% endif %}">
+            <a href="{% url 'question_bank' %}" class="menu-link">
+{#                <i class="fa-regular fa-circle-question"></i>#}
+                <i class="menu-icon icon-base ti tabler-files"></i>
+                <div>প্রশ্ন ব্যাংক</div>
+            </a>
+        </li>
 
 {#        <li class="menu-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">#}
 {#            <a href="{% url 'profile' %}" class="menu-link">#}

@@ -67,3 +67,7 @@ def dashboard_view(request):
 @login_required
 def question_page(request):
     return render(request, template_name='core/question.html')
+
+@login_required
+def question_bank(request):
+    return render(request, template_name='core/question_bank.html')
