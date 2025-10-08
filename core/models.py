@@ -56,6 +56,8 @@ class QuestionPaper(models.Model):
     class_level = models.ForeignKey(ClassName, on_delete=models.CASCADE)
     subjects = models.ManyToManyField(Subject)
     chapters = models.ManyToManyField(Chapter)
+    # store selected questions for the paper
+    questions = models.ManyToManyField('Question', blank=True)
 
     QUESTION_TYPES = [
         ('mcq', 'বহু নির্বাচনি'),
@@ -68,3 +70,38 @@ class QuestionPaper(models.Model):
 
     def __str__(self):
         return self.program_name
+
+
+class Question(models.Model):
+    """Represents a single question in the bank. Designed to be simple and
+    extensible for MCQ and descriptive types. Bulk uploads (CSV) will map
+    to these fields.
+    """
+    QUESTION_TYPES = [
+        ('mcq', 'বহু নির্বাচনি'),
+        ('creative', 'সৃজনশীল'),
+        ('short', 'সংক্ষিপ্ত উত্তর'),
+    ]
+
+    text = models.TextField(verbose_name='প্রশ্ন')
+    question_type = models.CharField(max_length=50, choices=QUESTION_TYPES, default='mcq')
+    class_name = models.ForeignKey(ClassName, on_delete=models.CASCADE, related_name='questions')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='questions')
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
+
+    # optional fields for MCQ
+    option_a = models.TextField(null=True, blank=True)
+    option_b = models.TextField(null=True, blank=True)
+    option_c = models.TextField(null=True, blank=True)
+    option_d = models.TextField(null=True, blank=True)
+    correct_option = models.CharField(max_length=2, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        short = self.text[:75].replace('\n', ' ')
+        return f"Q({self.id}) [{self.subject.name}] {short}"
+
+    class Meta:
+        verbose_name = 'প্রশ্ন'
+        verbose_name_plural = 'প্রশ্নসমূহ'

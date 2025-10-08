@@ -91,6 +91,18 @@
                         <div>সেটিংস</div>
                     </a>
                 </li>
+                <li class="menu-item {% if request.resolver_match.url_name == 'teacher_select_questions' %}active{% endif %}">
+                    <a href="{% url 'teacher_select_questions' %}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-list"></i>
+                        <div>প্রশ্ন নির্বাচন</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'teacher_select_questions' %}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-file-text"></i>
+                        <div>প্রশ্নপত্র প্রস্তুত</div>
+                    </a>
+                </li>
             </ul>
         </aside>
         <div class="layout-page">

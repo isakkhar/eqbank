@@ -1,0 +1,68 @@
+{% extends 'users/base.html' %}
+{% block title %} প্রশ্ন নির্বাচন {% endblock %}
+{% block content %}
+<h3>প্রশ্ন নির্বাচন</h3>
+<form method="get" id="filterForm">
+  <label>ক্লাস</label>
+  <select name="class_id" id="classSelect" onchange="document.getElementById('filterForm').submit()">
+    <option value="">-- ক্লাস নির্বাচন --</option>
+    {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+
+  <label>বিষয়</label>
+  <select name="subject_id" onchange="document.getElementById('filterForm').submit()">
+    <option value="">-- বিষয় --</option>
+    {% for s in subjects %}
+      <option value="{{ s.id }}" {% if request.GET.subject_id == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+    {% endfor %}
+  </select>
+
+  <label>অধ্যায়</label>
+  <select name="chapter_id" onchange="document.getElementById('filterForm').submit()">
+    <option value="">-- অধ্যায় --</option>
+    {% for ch in chapters %}
+      <option value="{{ ch.id }}" {% if request.GET.chapter_id == ch.id|stringformat:"s" %}selected{% endif %}>{{ ch.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<form method="post" action="{% url 'prepare_paper' %}">{% csrf_token %}
+  <div>
+    <div style="margin-bottom:8px" class="mt-4">
+      <button type="button" id="selectAllBtn" class="btn btn-sm btn-info">সিলেক্ট করুন</button>
+      <button type="button" id="unselectAllBtn" class="btn btn-sm btn-warning">আন সিলেক্ট করুন</button>
+    </div>
+    {% for q in questions %}
+      <div>
+        <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}" class="question-checkbox">
+        <label for="q{{ q.id }}">{{ q }}</label>
+      </div>
+    {% empty %}
+      <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
+    {% endfor %}
+  </div>
+
+  <h4>পেপারের তথ্য</h4>
+  <label>প্রতিষ্ঠানের নাম</label>
+  <input name="school_name" />
+  <label>পরীক্ষার সময় (মিনিট)</label>
+  <input name="duration" />
+  <label>মোট নম্বর</label>
+  <input name="total_marks" />
+  <label><input type="checkbox" name="include_omr" /> OMR দেখান</label>
+
+  <button type="submit">প্রশ্ন প্রস্তুত করুন</button>
+</form>
+
+<script>
+  // Select All / Unselect All handlers
+  document.getElementById('selectAllBtn')?.addEventListener('click', function(){
+    document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = true);
+  });
+  document.getElementById('unselectAllBtn')?.addEventListener('click', function(){
+    document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = false);
+  });
+</script>
+{% endblock %}

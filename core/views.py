@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 
 from core.forms import SignUpForm, BANGLADESH_DIVISIONS_DISTRICTS_THANAS, QuestionPaperForm
 from .models import Profile, ClassName, Subject, Chapter, QuestionPaper
+from .models import Question
 
 
 # Create your views here.
@@ -113,6 +114,79 @@ def question_page(request):
 @login_required
 def question_bank(request):
     return render(request, template_name='core/question_bank.html')
+
+
+@login_required
+def teacher_question_select(request):
+    """Teacher view: filter questions by class/subject/chapter and select many to include in a paper."""
+    classes = ClassName.objects.all()
+    subjects = Subject.objects.none()
+    chapters = Chapter.objects.none()
+    questions = Question.objects.none()
+
+    if request.method == 'GET':
+        class_id = request.GET.get('class_id')
+        subject_id = request.GET.get('subject_id')
+        chapter_id = request.GET.get('chapter_id')
+
+        if class_id:
+            subjects = Subject.objects.filter(class_name_id=class_id)
+            questions = Question.objects.filter(class_name_id=class_id)
+        if subject_id:
+            chapters = Chapter.objects.filter(subject_id=subject_id)
+            questions = questions.filter(subject_id=subject_id)
+        if chapter_id:
+            questions = questions.filter(chapter_id=chapter_id)
+
+    return render(request, 'core/teacher_select_questions.html', {
+        'classes': classes,
+        'subjects': subjects,
+        'chapters': chapters,
+        'questions': questions,
+    })
+
+
+@login_required
+def prepare_paper_view(request):
+    """Receive selected question ids and render a printable view with school name, time and marks.
+    Optionally include an OMR bubble area if requested.
+    """
+    if request.method == 'POST':
+        q_ids = request.POST.getlist('question_ids')
+        school_name = request.POST.get('school_name')
+        duration = request.POST.get('duration')
+        total_marks = request.POST.get('total_marks')
+        include_omr = request.POST.get('include_omr') == 'on'
+
+        questions = Question.objects.filter(id__in=q_ids)
+
+        # If no questions selected, don't create an empty paper — redirect back
+        if not questions.exists():
+            return redirect('teacher_select_questions')
+
+        # Persist the prepared paper to the database so every prepared paper is recorded
+        paper = QuestionPaper.objects.create(
+            program_name=f"Prepared: {school_name or 'Paper'}",
+            creator=request.user,
+            class_level=questions.first().class_name if questions.exists() else ClassName.objects.first(),
+            question_type='combined' if questions.exists() else 'mcq',
+            number_of_questions=questions.count()
+        )
+        # attach selected questions
+        paper.questions.set(questions)
+
+        context = {
+            'school_name': school_name,
+            'duration': duration,
+            'total_marks': total_marks,
+            'include_omr': include_omr,
+            'questions': questions,
+            'paper': paper,
+            'show_answers': True,
+        }
+        return render(request, 'core/prepare_paper.html', context)
+
+    return redirect('teacher_select_questions')
 
 @login_required
 def question_ready(request):

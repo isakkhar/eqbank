@@ -20,4 +20,7 @@ urlpatterns = [
     # AJAX URLs
     path('ajax/load-subjects/', views.ajax_load_subjects, name='ajax_load_subjects'),
     path('ajax/load-chapters/', views.ajax_load_chapters, name='ajax_load_chapters'),
+    # Teacher selection and paper preparation
+    path('teacher/select-questions/', views.teacher_question_select, name='teacher_select_questions'),
+    path('teacher/prepare-paper/', views.prepare_paper_view, name='prepare_paper'),
 ]

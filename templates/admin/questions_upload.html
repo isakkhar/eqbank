@@ -1,0 +1,9 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>Upload Questions CSV</h1>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="default">Upload</button>
+  </form>
+  <p>CSV should have columns: class_name,subject,chapter (optional),question_type,text (or question), option_a, option_b, option_c, option_d, correct_option</p>
+{% endblock %}
