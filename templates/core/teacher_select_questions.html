@@ -1,3 +1,4 @@
+
 {% extends 'users/base.html' %}
 {% block title %} প্রশ্ন নির্বাচন {% endblock %}
 {% block content %}
@@ -41,8 +42,28 @@
       {% endfor %}
     </select>
   </div>
+
+  <div class="mb-3" style="width: 250px;">
+    <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
+    <select name="question_type" id="questionTypeSelect" class="form-select"
+      onchange="document.getElementById('filterForm').submit()">
+      <option value="">-- প্রশ্নের ধরন নির্বাচন করুন --</option>
+      <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি</option>
+      <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল</option>
+      <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত উত্তর</option>
+    </select>
+  </div>
+
+  <div class="mb-3" style="width: 250px;">
+    <label for="questionCountInput" class="form-label fw-semibold">কতটি প্রশ্ন দেখাবে</label>
+    <input type="number" name="question_count" id="questionCountInput" class="form-control" 
+      placeholder="যেমনঃ 10" min="1" value="{{ request.GET.question_count }}">
+  </div>
+  
+  <button type="submit" class="btn btn-primary mb-4">ফিল্টার প্রয়োগ করুন</button>
 </form>
 
+{% if show_questions %}
 <form method="post" action="{% url 'prepare_paper' %}">{% csrf_token %}
   <div>
     <div style="margin-bottom:8px" class="mt-4">
@@ -55,11 +76,11 @@
       <label for="q{{ q.id }}">{{ q }}</label>
     </div>
     {% empty %}
-    <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
+    <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
     {% endfor %}
   </div>
 
-  <h4>পেপারের তথ্য</h4>
+  <h4 class="mt-4">পেপারের তথ্য</h4>
   <div class="mb-3" style="width: 400px;">
     <label for="defaultFormControlInput" class="form-label fw-semibold">
       প্রতিষ্ঠানের নাম
@@ -69,7 +90,7 @@
   </div>
 
   <div class="mb-3" style="width: 250px;">
-    <label class="form-label fw-semibold">সময় (মিনিট)</label>
+    <label class="form-label fw-semibold">সময় (মিনিট)</label>
     <input type="number" name="duration" class="form-control" placeholder="যেমনঃ 60" />
   </div>
 
@@ -82,6 +103,11 @@
   <br>
   <button type="submit" class="btn btn-info" style="margin-top: 30px;">প্রশ্ন প্রস্তুত করুন</button>
 </form>
+{% else %}
+<div class="alert alert-info mt-4" role="alert">
+  সকল ফিল্ড নির্বাচন করুন এবং "ফিল্টার প্রয়োগ করুন" বাটনে ক্লিক করুন।
+</div>
+{% endif %}
 
 <script>
   // Select All / Unselect All handlers

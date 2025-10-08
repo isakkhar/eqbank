@@ -123,26 +123,51 @@ def teacher_question_select(request):
     subjects = Subject.objects.none()
     chapters = Chapter.objects.none()
     questions = Question.objects.none()
+    show_questions = False
 
     if request.method == 'GET':
         class_id = request.GET.get('class_id')
         subject_id = request.GET.get('subject_id')
         chapter_id = request.GET.get('chapter_id')
+        question_type = request.GET.get('question_type')
+        question_count = request.GET.get('question_count')
+
+        # Debug: Print values to console
+        print(f"Debug - class_id: {class_id}, subject_id: {subject_id}, chapter_id: {chapter_id}, question_type: {question_type}, question_count: {question_count}")
 
         if class_id:
             subjects = Subject.objects.filter(class_name_id=class_id)
-            questions = Question.objects.filter(class_name_id=class_id)
         if subject_id:
             chapters = Chapter.objects.filter(subject_id=subject_id)
-            questions = questions.filter(subject_id=subject_id)
-        if chapter_id:
-            questions = questions.filter(chapter_id=chapter_id)
+        
+        # Only show questions if all required fields are selected
+        if class_id and subject_id and chapter_id and question_type and question_count:
+            show_questions = True
+            questions = Question.objects.filter(
+                class_name_id=class_id,
+                subject_id=subject_id,
+                chapter_id=chapter_id,
+                question_type=question_type
+            )
+            
+            print(f"Debug - Total questions found: {questions.count()}")
+            
+            # Limit the number of questions based on user input
+            try:
+                count = int(question_count)
+                if count > 0:
+                    questions = questions[:count]
+                    print(f"Debug - Limited to {count} questions")
+            except (ValueError, TypeError):
+                questions = questions[:10]  # Default to 10 if invalid input
+                print("Debug - Using default 10 questions")
 
     return render(request, 'core/teacher_select_questions.html', {
         'classes': classes,
         'subjects': subjects,
         'chapters': chapters,
         'questions': questions,
+        'show_questions': show_questions,
     })
 
 
