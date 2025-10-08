@@ -17,217 +17,220 @@
             <p>
                 আমাদের লক্ষ্য হলো শিক্ষার মান উন্নয়ন করা এবং সকলের জন্য জ্ঞানার্জন সহজলভ্য করা।
             </p>
-            <div class="mb-2 border-t border-x border-gray-400 py-2 border-dashed  p-1">
-               <h5> <p class="text-center">নিচের ইনপুট ফিল্ড গুলো সিলেক্ট করে সাবমিট করুন</p></h5>
+    <form method="POST" action="{% url 'create_question_paper' %}">
+    {% csrf_token %}
 
-            </div>
-            <div class="form-box">
-            <div class="mb-6" style="width: 500px;">
-                <label class="form-label">প্রোগ্রাম বা পরীক্ষার নাম লিখুন</label>
-                <input type="text" class="form-control" placeholder="প্রোগ্রাম বা পরীক্ষার নাম লিখুন"/>
-            </div>
-            <div class="mb-3" style="width: 150px;">
-                <label class="form-label" for="state">ক্লাস</label>
-                <select class="form-select" id="state" required>
-                    <option value="">সিলেক্ট ক্লাস</option>
-                    <option value="প্রথম শ্রেণি">প্রথম শ্রেণি</option>
-                    <option value="দ্বিতীয় শ্রেণি">দ্বিতীয় শ্রেণি</option>
-                    <option value="তৃতীয় শ্রেণি">তৃতীয় শ্রেণি</option>
-                </select>
-            </div>
-            <div class="mb-6 mt-6" style="width: 500px;">
-                <!-- Dropdown button -->
-                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#subjectModal">
-                    বিষয় নির্বাচন করুন
+    <div class="mb-2 border-t border-x border-gray-400 py-2 border-dashed p-1">
+        <h5><p class="text-center">নিচের ইনপুট ফিল্ড গুলো সিলেক্ট করে সাবমিট করুন</p></h5>
+    </div>
+
+    <div class="form-box">
+        <div class="mb-6" style="width: 500px;">
+            <label class="form-label" for="id_program_name">প্রোগ্রাম বা পরীক্ষার নাম লিখুন</label>
+            <input type="text" class="form-control" name="program_name" id="id_program_name" placeholder="প্রোগ্রাম বা পরীক্ষার নাম লিখুন"/>
+        </div>
+
+        <div class="mb-3" style="width: 150px;">
+    <label class="form-label" for="{{ form.class_level.id_for_label }}">{{ form.class_level.label }}</label>
+            <select name="class_level" class="form-select" id="id_class_level" required>
+                <option value="">সিলেক্ট ক্লাস</option>
+                {% for c in classes %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <input type="hidden" name="subjects" id="hidden-subjects">
+        <input type="hidden" name="chapters" id="hidden-chapters">
+
+        <div class="row mb-3" style="width: 750px;">
+            <div class="mt-6" style="width: 500px;">
+                <button type="button" class="btn btn-outline-info" id="subject-modal-btn" data-bs-toggle="modal" data-bs-target="#subjectModal" disabled>
+                    বিষয় নির্বাচন করুন
                 </button>
             </div>
-            <!-- Modal -->
-            <div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="subjectModalLabel">বিষয় তালিকা</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="d-flex justify-content-between mb-3">
-                                <button type="button" class="btn btn-sm btn-info" id="selectAll">সব সিলেক্ট করুন
-                                </button>
-                                <button type="button" class="btn btn-sm btn-warning" id="unselectAll">সব আনসিলেক্ট
-                                    করুন
-                                </button>
-                            </div>
-
-                            <form id="subjectForm">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="math">
-                                    <label class="form-check-label" for="math">গণিত</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="science">
-                                    <label class="form-check-label" for="science">বিজ্ঞান</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="bangladesh">
-                                    <label class="form-check-label" for="bangladesh">বাংলাদেশ ও বিশ্বপরিচয়</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="ict">
-                                    <label class="form-check-label" for="ict">তথ্য ও যোগাযোগ প্রযুক্তি</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="islam">
-                                    <label class="form-check-label" for="islam">ইসলাম শিক্ষা</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="agriculture">
-                                    <label class="form-check-label" for="agriculture">কৃষিশিক্ষা</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="health">
-                                    <label class="form-check-label" for="health">শারীরিক শিক্ষা ও স্বাস্থ্য</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="life">
-                                    <label class="form-check-label" for="life">কর্ম ও জীবনমুখী শিক্ষা</label>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-info" id="saveSelection" data-bs-dismiss="modal">সেভ
-                                করুন
-                            </button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">বন্ধ করুন</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Selected subjects display -->
-            <div class="container mt-4 text-center">
+            <div class="container mt-4">
                 <p id="selectedSubjects" class="fw-bold text-info"></p>
             </div>
-            <div class="mb-6 mt-6" style="width: 500px;">
-                <!-- Dropdown button -->
-                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#subjectModal">
-                    অধ্যায় নির্বাচন করুন
+
+            <div class="mt-6" style="width: 500px;">
+                <button type="button" class="btn btn-outline-info" id="chapter-modal-btn" data-bs-toggle="modal" data-bs-target="#chapterModal" disabled>
+                    অধ্যায় নির্বাচন করুন
                 </button>
             </div>
-            <!-- Modal -->
-            <div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="subjectModalLabel">অধ্যায় তালিকা</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="d-flex justify-content-between mb-3">
-                                <button type="button" class="btn btn-sm btn-info" id="selectAll">সব সিলেক্ট করুন
-                                </button>
-                                <button type="button" class="btn btn-sm btn-warning" id="unselectAll">সব আনসিলেক্ট
-                                    করুন
-                                </button>
-                            </div>
-
-                            <form id="subjectForm">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="math">
-                                    <label class="form-check-label" for="math">গণিত</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="science">
-                                    <label class="form-check-label" for="science">বিজ্ঞান</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="bangladesh">
-                                    <label class="form-check-label" for="bangladesh">বাংলাদেশ ও বিশ্বপরিচয়</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="ict">
-                                    <label class="form-check-label" for="ict">তথ্য ও যোগাযোগ প্রযুক্তি</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="islam">
-                                    <label class="form-check-label" for="islam">ইসলাম শিক্ষা</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="agriculture">
-                                    <label class="form-check-label" for="agriculture">কৃষিশিক্ষা</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="health">
-                                    <label class="form-check-label" for="health">শারীরিক শিক্ষা ও স্বাস্থ্য</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="life">
-                                    <label class="form-check-label" for="life">কর্ম ও জীবনমুখী শিক্ষা</label>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-info" id="saveSelection" data-bs-dismiss="modal">সেভ
-                                করুন
-                            </button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">বন্ধ করুন</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="container mt-4">
+                <p id="selectedChapters" class="fw-bold text-info"></p>
             </div>
-            <!-- Selected subjects display -->
-            <div class="container mt-6 text-center">
-                <p id="selectedSubjects" class="fw-bold text-info"></p>
-            </div>
-            <div class="row mb-3" style="width: 750px;">
-                <div class="col-md-3">
-                    <label class="form-label" for="state">প্রশ্ন টাইপ</label>
-                    <select class="form-select" id="state" required>
-                        <option value="">সিলেক্ট টাইপ</option>
-                        <option value="বহু নির্বাচনি">বহু নির্বাচনি</option>
-                        <option value="সৃজনশীল">সৃজনশীল</option>
-                        <option value="সমন্বিত প্রশ্ন (সৃজঃ+বহু+সংক্ষিপ্ত+অন্যান্য)">সমন্বিত প্রশ্ন
-                            (সৃজঃ+বহু+সংক্ষিপ্ত+অন্যান্য)
-                        </option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="number">সংখ্যা</label>
-                    <input type="text" class="form-control" id="number" placeholder="আপনি কতগুলা প্রশ্ন চান" required>
-                </div>
 
             </div>
-            <div class="card-body">
-                <div class="demo-inline-spacing">
-                    <button type="button" class="btn btn-label-info">সাবমিট করুন</button>
-                </div>
+
+        <div class="card-body">
+            <div class="demo-inline-spacing">
+                <button type="submit" class="btn btn-label-info">সাবমিট করুন</button>
             </div>
+        </div>
+    </div>
+</form>
+
+<div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">বিষয় তালিকা</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <form id="subjectForm"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="me-auto">
+                    <button type="button" class="btn btn-sm btn-info" id="selectAllSubjectsBtn">সব সিলেক্ট করুন</button>
+                    <button type="button" class="btn btn-sm btn-warning" id="unselectAllSubjectsBtn">সব আনসিলেক্ট করুন</button>
                 </div>
+                <button type="button" class="btn btn-info" id="saveSubjectsBtn" data-bs-dismiss="modal">সেভ করুন</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="chapterModal" tabindex="-1" aria-labelledby="chapterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">অধ্যায় তালিকা</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <form id="chapterForm"></form>
+            </div>
+            <div class="modal-footer">
+                <div class="me-auto">
+                    <button type="button" class="btn btn-sm btn-secondary" id="selectAllChaptersBtn">সর্বমোট সিলেক্ট</button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="unselectAllChaptersBtn">আনসিলেক্ট</button>
+                </div>
+                <button type="button" class="btn btn-info" id="saveChaptersBtn" data-bs-dismiss="modal">সেভ করুন</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
         </div>
 
     </div>
-{#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>#}
-    <script>
-        const selectAllBtn = document.getElementById('selectAll');
-        const unselectAllBtn = document.getElementById('unselectAll');
-        const checkboxes = document.querySelectorAll('#subjectForm input[type="checkbox"]');
-        {#const saveBtn = document.getElementById('saveSelection');#}
-        const selectedSubjects = document.getElementById('selectedSubjects');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ নিশ্চিত করুন HTML-এর id এবং এখানের id হুবহু এক
+    const classSelect = document.getElementById('id_class_level');
+    const subjectModalBtn = document.getElementById('subject-modal-btn');
+    const chapterModalBtn = document.getElementById('chapter-modal-btn');
+    const subjectForm = document.getElementById('subjectForm');
+    const chapterForm = document.getElementById('chapterForm');
+    const saveSubjectsBtn = document.getElementById('saveSubjectsBtn');
+    const saveChaptersBtn = document.getElementById('saveChaptersBtn');
+    const hiddenSubjects = document.getElementById('hidden-subjects');
+    const hiddenChapters = document.getElementById('hidden-chapters');
+    const selectedSubjectsP = document.getElementById('selectedSubjects');
+    const selectedChaptersP = document.getElementById('selectedChapters');
 
-        // সব সিলেক্ট
-        selectAllBtn.addEventListener('click', () => {
-            checkboxes.forEach(cb => cb.checked = true);
-        });
+    // ভ্যারিয়েবলটি null কিনা তা চেক করা হচ্ছে
+    if (classSelect) {
+        classSelect.addEventListener('change', function() {
+            // ... (বাকি কোড আগের মতোই)
+            const classId = this.value;
+            subjectForm.innerHTML = '';
+            chapterForm.innerHTML = '';
+            chapterModalBtn.disabled = true;
+            selectedSubjectsP.textContent = '';
+            selectedChaptersP.textContent = '';
+            hiddenSubjects.value = '';
+            hiddenChapters.value = '';
 
-        // সব আনসিলেক্ট
-        unselectAllBtn.addEventListener('click', () => {
-            checkboxes.forEach(cb => cb.checked = false);
+            if (!classId) {
+                subjectModalBtn.disabled = true;
+                return;
+            }
+            subjectModalBtn.disabled = false;
+            fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`)
+                .then(response => response.json())
+                .then(subjects => {
+                    subjects.forEach(subject => {
+                        subjectForm.innerHTML += `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="${subject.id}" id="subject-${subject.id}" name="subjects">
+                                <label class="form-check-label" for="subject-${subject.id}">${subject.name}</label>
+                            </div>`;
+                    });
+                });
         });
-    </script>
+    }
+
+    if (saveSubjectsBtn) {
+        saveSubjectsBtn.addEventListener('click', function() {
+            // ... (বাকি কোড আগের মতোই)
+            const selectedCheckboxes = subjectForm.querySelectorAll('input:checked');
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            const selectedNames = Array.from(selectedCheckboxes).map(cb => cb.nextElementSibling.textContent);
+
+            hiddenSubjects.value = selectedIds.join(',');
+            selectedSubjectsP.textContent = 'নির্বাচিত বিষয়: ' + selectedNames.join(', ');
+
+            chapterForm.innerHTML = '';
+            chapterModalBtn.disabled = true;
+            selectedChaptersP.textContent = '';
+            hiddenChapters.value = '';
+
+            if (selectedIds.length === 0) return;
+
+            chapterModalBtn.disabled = false;
+            fetch(`{% url 'ajax_load_chapters' %}?subject_ids=${selectedIds.join(',')}`)
+                .then(response => response.json())
+                .then(chapters => {
+                    chapters.forEach(chapter => {
+                        chapterForm.innerHTML += `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="${chapter.id}" id="chapter-${chapter.id}" name="chapters">
+                                <label class="form-check-label" for="chapter-${chapter.id}">${chapter.name}</label>
+                            </div>`;
+                    });
+                });
+        });
+    }
+
+    if (saveChaptersBtn) {
+        saveChaptersBtn.addEventListener('click', function() {
+            // ... (বাকি কোড আগের মতোই)
+            const selectedCheckboxes = chapterForm.querySelectorAll('input:checked');
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            const selectedNames = Array.from(selectedCheckboxes).map(cb => cb.nextElementSibling.textContent);
+
+            hiddenChapters.value = selectedIds.join(',');
+            selectedChaptersP.textContent = 'নির্বাচিত অধ্যায়: ' + selectedNames.join(', ');
+        });
+    }
+
+    // Helper functions to select/unselect all checkboxes inside a form element
+    function selectAllIn(form) {
+        if (!form) return;
+        const boxes = form.querySelectorAll('input[type="checkbox"]');
+        boxes.forEach(b => b.checked = true);
+    }
+
+    function unselectAllIn(form) {
+        if (!form) return;
+        const boxes = form.querySelectorAll('input[type="checkbox"]');
+        boxes.forEach(b => b.checked = false);
+    }
+
+    // Wire up select/unselect buttons for subjects
+    const selectAllSubjectsBtn = document.getElementById('selectAllSubjectsBtn');
+    const unselectAllSubjectsBtn = document.getElementById('unselectAllSubjectsBtn');
+    if (selectAllSubjectsBtn) selectAllSubjectsBtn.addEventListener('click', () => selectAllIn(subjectForm));
+    if (unselectAllSubjectsBtn) unselectAllSubjectsBtn.addEventListener('click', () => unselectAllIn(subjectForm));
+
+    // Wire up select/unselect buttons for chapters
+    const selectAllChaptersBtn = document.getElementById('selectAllChaptersBtn');
+    const unselectAllChaptersBtn = document.getElementById('unselectAllChaptersBtn');
+    if (selectAllChaptersBtn) selectAllChaptersBtn.addEventListener('click', () => selectAllIn(chapterForm));
+    if (unselectAllChaptersBtn) unselectAllChaptersBtn.addEventListener('click', () => unselectAllIn(chapterForm));
+});
+</script>
+
 {% endblock %}

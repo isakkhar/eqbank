@@ -15,5 +15,9 @@ urlpatterns = [
 
     path('ajax/load-districts/', views.load_districts, name='ajax_load_districts'),
     path('ajax/load-thanas/', views.load_thanas, name='ajax_load_thanas'),
+    path('create-paper/', views.create_question_paper_view, name='create_question_paper'),
 
+    # AJAX URLs
+    path('ajax/load-subjects/', views.ajax_load_subjects, name='ajax_load_subjects'),
+    path('ajax/load-chapters/', views.ajax_load_chapters, name='ajax_load_chapters'),
 ]

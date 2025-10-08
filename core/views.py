@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from core.forms import SignUpForm, BANGLADESH_DIVISIONS_DISTRICTS_THANAS
-from .models import Profile
+from core.forms import SignUpForm, BANGLADESH_DIVISIONS_DISTRICTS_THANAS, QuestionPaperForm
+from .models import Profile, ClassName, Subject, Chapter, QuestionPaper
 
 
 # Create your views here.
@@ -103,7 +103,11 @@ def dashboard_view(request):
 
 @login_required
 def question_page(request):
-    return render(request, template_name='core/question.html')
+    # Provide the QuestionPaperForm instance and classes queryset so the
+    # template can render the class select and labels correctly.
+    form = QuestionPaperForm()
+    classes = ClassName.objects.all()
+    return render(request, 'core/question.html', {'form': form, 'classes': classes})
 
 
 @login_required
@@ -113,3 +117,110 @@ def question_bank(request):
 @login_required
 def question_ready(request):
     return render(request, template_name='core/question_ready.html')
+
+
+@login_required
+def create_paper_submit_view(request):
+    """Processes the submitted question paper form data."""
+    if request.method == 'POST':
+        form = QuestionPaperForm(request.POST)
+
+        # ভ্যালিডেশনের জন্য সাবজেক্ট এবং চ্যাপ্টারের queryset লোড করা
+        class_id = request.POST.get('class_level')
+        if class_id:
+            # Subject model uses `class_name` FK
+            form.fields['subjects'].queryset = Subject.objects.filter(class_name_id=class_id)
+
+        subject_ids_str = request.POST.get('subjects')
+        if subject_ids_str:
+            subject_ids = [int(sid) for sid in subject_ids_str.split(',')]
+            form.fields['chapters'].queryset = Chapter.objects.filter(subject_id__in=subject_ids)
+
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+
+            paper = QuestionPaper.objects.create(
+                program_name=cleaned_data['program_name'],
+                creator=request.user,
+                class_level=cleaned_data['class_level'],
+                question_type=cleaned_data['question_type'],
+                number_of_questions=cleaned_data['number_of_questions']
+            )
+
+            # ManyToMany ফিল্ডগুলোর জন্য .set() ব্যবহার করা হয়
+            subjects_from_form = Subject.objects.filter(id__in=[int(i) for i in request.POST.getlist('subjects')])
+            chapters_from_form = Chapter.objects.filter(id__in=[int(i) for i in request.POST.getlist('chapters')])
+
+            paper.subjects.set(subjects_from_form)
+            paper.chapters.set(chapters_from_form)
+
+            # Redirect to the create page and show the created paper there
+            return redirect(f"/accounts/create-paper/?created={paper.id}")
+        else:
+            print(form.errors)
+            # যদি ফর্ম ভ্যালিড না হয়, তাহলে error সহ ফর্ম পেইজে ফেরত পাঠানো যেতে পারে
+            # কিন্তু এর জন্য question_form_view-তে POST হ্যান্ডেল করতে হবে
+            # আপাতত সহজ রাখার জন্য ড্যাশবোর্ডে রিডাইরেক্ট করা হলো
+            return redirect('create_question_paper')
+
+    return redirect('create_question_paper')
+
+
+@login_required
+def create_question_paper_view(request):
+    """Render the question paper form on GET and handle submission by delegating to
+    create_paper_submit_view on POST.
+    """
+    if request.method == 'POST':
+        # reuse existing submit handler to avoid duplicating logic
+        return create_paper_submit_view(request)
+
+    form = QuestionPaperForm()
+    created_paper = None
+    created_id = request.GET.get('created')
+    if created_id:
+        try:
+            created_paper = QuestionPaper.objects.get(id=int(created_id), creator=request.user)
+        except QuestionPaper.DoesNotExist:
+            created_paper = None
+    return render(request, 'core/question_paper_form.html', {'form': form, 'created_paper': created_paper})
+
+
+# ---------------------------------
+# --- AJAX Helper Views ---
+# ---------------------------------
+
+def ajax_load_districts(request):
+    """Provides a list of districts based on the selected division for AJAX calls."""
+    division = request.GET.get('division')
+    districts = list(BANGLADESH_DIVISIONS_DISTRICTS_THANAS.get(division, {}).keys())
+    return JsonResponse(districts, safe=False)
+
+
+def ajax_load_thanas(request):
+    """Provides a list of thanas based on the selected division and district for AJAX calls."""
+    division = request.GET.get('division')
+    district = request.GET.get('district')
+    thanas = []
+    if division and district:
+        thanas = BANGLADESH_DIVISIONS_DISTRICTS_THANAS.get(division, {}).get(district, [])
+    return JsonResponse(thanas, safe=False)
+
+
+def ajax_load_subjects(request):
+    """Provides a list of subjects based on the selected class for AJAX calls."""
+    class_id = request.GET.get('class_id')
+    # Subject model uses `class_name` FK; filter by class_name_id
+    subjects = Subject.objects.filter(class_name_id=class_id).values('id', 'name')
+    return JsonResponse(list(subjects), safe=False)
+
+
+def ajax_load_chapters(request):
+    """Provides a list of chapters based on selected subjects for AJAX calls."""
+    subject_ids_str = request.GET.get('subject_ids', '')
+    if subject_ids_str:
+        subject_ids = [int(sid) for sid in subject_ids_str.split(',')]
+        # Chapter model uses `subject` FK; filter by subject_id
+        chapters = Chapter.objects.filter(subject_id__in=subject_ids).values('id', 'name')
+        return JsonResponse(list(chapters), safe=False)
+    return JsonResponse([], safe=False)

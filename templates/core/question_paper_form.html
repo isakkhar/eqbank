@@ -1,0 +1,26 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Create Question Paper{% endblock %}
+
+{% block content %}
+	<div class="card">
+		<div class="card-body">
+			<h4>Create Question Paper</h4>
+			<form method="post">
+				{% csrf_token %}
+				{{ form.as_p }}
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</form>
+
+			{% if created_paper %}
+				<hr />
+				<h5>Created Paper</h5>
+				<p><strong>ID:</strong> {{ created_paper.id }}</p>
+				<p><strong>Program:</strong> {{ created_paper.program_name }}</p>
+				<p><strong>Class:</strong> {{ created_paper.class_level.name }}</p>
+				<p><strong>Subjects:</strong> {{ created_paper.subjects.all|join:", " }}</p>
+				<p><strong>Chapters:</strong> {{ created_paper.chapters.all|join:", " }}</p>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

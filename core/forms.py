@@ -3,6 +3,8 @@
 from django import forms
 from django.contrib.auth.models import User
 
+from core.models import ClassName, Subject, Chapter
+
 # থানা সহ সম্পূর্ণ ডেটা স্ট্রাকচার
 BANGLADESH_DIVISIONS_DISTRICTS_THANAS = {
     "ঢাকা": {
@@ -168,3 +170,55 @@ class SignUpForm(forms.Form):
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("এই ইউজারনেমটি bereits ব্যবহৃত হয়েছে।")
         return username
+
+
+class QuestionPaperForm(forms.Form):
+    program_name = forms.CharField(
+        label="প্রোগ্রাম বা পরীক্ষার নাম",
+        max_length=200,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+    class_level = forms.ModelChoiceField(
+        label="ক্লাস",
+        queryset=ClassName.objects.none(),  # প্রাথমিকভাবে খালি রাখা হলো
+        empty_label="সিলেক্ট ক্লাস",
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.none(),  # ভিউ থেকে লোড হবে
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    chapters = forms.ModelMultipleChoiceField(
+        queryset=Chapter.objects.none(),  # ভিউ থেকে লোড হবে
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    QUESTION_TYPES = [
+        ('', 'সিলেক্ট টাইপ'),
+        ('mcq', 'বহু নির্বাচনি'),
+        ('creative', 'সৃজনশীল'),
+        ('combined', 'সমন্বিত প্রশ্ন'),
+    ]
+    question_type = forms.ChoiceField(
+        label="প্রশ্ন টাইপ",
+        choices=QUESTION_TYPES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    number_of_questions = forms.IntegerField(
+        label="সংখ্যা",
+        required=True,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
+    # এই মেথডটি নিশ্চিত করে যে প্রতিবার ফর্ম লোড হওয়ার সময় নতুন ডেটা আসবে
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['class_level'].queryset = ClassName.objects.all()

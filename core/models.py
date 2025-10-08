@@ -48,3 +48,23 @@ class Chapter(models.Model):
     class Meta:
         verbose_name = "অধ্যায়"
         verbose_name_plural = "অধ্যায়সমূহ"
+
+
+class QuestionPaper(models.Model):
+    program_name = models.CharField(max_length=255)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    class_level = models.ForeignKey(ClassName, on_delete=models.CASCADE)
+    subjects = models.ManyToManyField(Subject)
+    chapters = models.ManyToManyField(Chapter)
+
+    QUESTION_TYPES = [
+        ('mcq', 'বহু নির্বাচনি'),
+        ('creative', 'সৃজনশীল'),
+        ('combined', 'সমন্বিত প্রশ্ন'),
+    ]
+    question_type = models.CharField(max_length=50, choices=QUESTION_TYPES)
+    number_of_questions = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.program_name
