@@ -7623,8 +7623,8 @@ textarea.form-control-lg {
   --bs-vimeo-rgb: 26, 183, 234;
 }
 :root .bg-gradient-primary {
-  --bs-bg-gradient-color: var(--bs-primary);
-  --bs-bg-gradient-color-rgb: var(--bs-primary-rgb);
+  --bs-bg-gradient-color: var(--bs-info);
+  --bs-bg-gradient-color-rgb: var(--bs-info-rgb);
   background-image: linear-gradient(45deg, var(--bs-bg-gradient-color), rgba(var(--bs-bg-gradient-color-rgb), 0.5)) !important;
 }
 :root .bg-gradient-secondary {
@@ -7750,12 +7750,12 @@ textarea.form-control-lg {
   color: var(--bs-paper-bg) !important;
 }
 .text-paper[href]:hover, .text-paper[href]:focus {
-  color: var(--bs-primary) !important;
+  color: var(--bs-info) !important;
 }
 
 .text-body[href]:hover,
 .text-heading[href]:hover {
-  color: var(--bs-primary) !important;
+  color: var(--bs-info) !important;
 }
 
 .container-p-x {
@@ -8018,7 +8018,7 @@ textarea.form-control-lg {
   --bs-box-shadow-lg: 0 0.25rem 1.125rem 0 rgba(47, 43, 61, 0.16);
   --bs-box-shadow-xl: 0 0.3125rem 1.875rem 0 rgba(47, 43, 61, 0.18);
   --bs-floating-component-shadow: 0 0.31rem 1.25rem 0 #acaab1;
-  --bs-custom-link-color: var(--bs-primary);
+  --bs-custom-link-color: var(--bs-info);
   --bs-navbar-bg: var(--bs-paper-bg);
   --bs-navbar-box-shadow: 0 0 10px var(--bs-border-color);
   --bs-navbar-border-width: 1px;
@@ -8054,7 +8054,7 @@ textarea.form-control-lg {
   --bs-gray-700: #acabc1;
   --bs-gray-800: #bdbcd3;
   --bs-gray-900: #cfcde4;
-  --bs-primary: #7367f0;
+  --bs-info: #7367f0;
   --bs-secondary: #808390;
   --bs-success: #28c76f;
   --bs-info: #00bad1;
@@ -8632,7 +8632,7 @@ img[data-app-light-img][data-app-dark-img] {
   padding-inline: calc(0.9375rem - 2px);
 }
 .form-control:focus::file-selector-button, .was-validated .form-control:invalid::file-selector-button, .was-validated .form-control:valid::file-selector-button, .form-control.is-invalid::file-selector-button, .form-control.is-valid::file-selector-button {
-  box-shadow: var(--bs-border-width) 0 0 var(--bs-primary);
+  box-shadow: var(--bs-border-width) 0 0 var(--bs-info);
 }
 .form-control.form-control-lg {
   padding-block: calc(0.575rem - var(--bs-border-width));
@@ -8754,9 +8754,9 @@ img[data-app-light-img][data-app-dark-img] {
 }
 
 .form-check-input {
-  --bs-form-check-input-checked-bg: var(--bs-primary);
-  --bs-form-check-input-checked-border-color: var(--bs-primary);
-  --bs-form-check-shadow-color: var(--bs-primary-rgb);
+  --bs-form-check-input-checked-bg: var(--bs-info);
+  --bs-form-check-input-checked-border-color: var(--bs-info);
+  --bs-form-check-shadow-color: var(--bs-info-rgb);
   --bs-form-check-box-shadow: 0 .125rem .375rem 0 rgba(var(--bs-form-check-shadow-color), .3);
   cursor: pointer;
 }

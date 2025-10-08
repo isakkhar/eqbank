@@ -1,5 +1,4 @@
 {% extends 'users/base.html' %} {# -- প্রথম লাইনে base.html কে extend করতে হবে -- #}
-{% comment %} file: core/templates/core/about.html {% endcomment %}
 {% block title %} ই-প্রশ্ন ব্যাংক| প্রশ্ন তৈরি{% endblock %} {# -- এই পেইজের জন্য একটি আলাদা টাইটেল -- #}
 
 {% block content %} {# -- আপনার পেইজের সব মূল কন্টেন্ট এই ব্লকের ভেতরে থাকবে -- #}
@@ -22,12 +21,11 @@
                <h5> <p class="text-center">নিচের ইনপুট ফিল্ড গুলো সিলেক্ট করে সাবমিট করুন</p></h5>
 
             </div>
+            <div class="form-box">
             <div class="mb-6" style="width: 500px;">
                 <label class="form-label">প্রোগ্রাম বা পরীক্ষার নাম লিখুন</label>
                 <input type="text" class="form-control" placeholder="প্রোগ্রাম বা পরীক্ষার নাম লিখুন"/>
             </div>
-
-
             <div class="mb-3" style="width: 150px;">
                 <label class="form-label" for="state">ক্লাস</label>
                 <select class="form-select" id="state" required>
@@ -37,8 +35,6 @@
                     <option value="তৃতীয় শ্রেণি">তৃতীয় শ্রেণি</option>
                 </select>
             </div>
-
-
             <div class="mb-6 mt-6" style="width: 500px;">
                 <!-- Dropdown button -->
                 <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#subjectModal">
@@ -110,7 +106,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Selected subjects display -->
             <div class="container mt-4 text-center">
                 <p id="selectedSubjects" class="fw-bold text-info"></p>
@@ -186,7 +181,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Selected subjects display -->
             <div class="container mt-6 text-center">
                 <p id="selectedSubjects" class="fw-bold text-info"></p>
@@ -209,16 +203,16 @@
                 </div>
 
             </div>
-
             <div class="card-body">
                 <div class="demo-inline-spacing">
                     <button type="button" class="btn btn-label-info">সাবমিট করুন</button>
                 </div>
             </div>
-            {#        <a href="{% url 'dashboard' %}" class="btn btn-info">ড্যাশবোর্ডে ফিরে যান</a>#}
+                </div>
         </div>
+
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>#}
     <script>
         const selectAllBtn = document.getElementById('selectAll');
         const unselectAllBtn = document.getElementById('unselectAll');

@@ -71,8 +71,10 @@
                             <span class="app-brand-text demo text-heading fw-bold">ই-প্রশ্ন ব্যাংক</span>
                         </a>
                     </div>
-                    <h4 class="mb-1">স্বাগতম ই-প্রশ্ন ব্যাংক! 👋</h4>
-                    <p class="mb-6">সাইন করে ড্যাশবোর্ড এ যান।</p>
+                    <div style="text-align: center; color: #007bff;">
+                        <h4 style="color: #0dcaf0;" class="mb-1">স্বাগতম ই-প্রশ্ন ব্যাংক! 👋</h4>
+                        <p style="color: #0dcaf0;" class="mb-6">সাইন করে ড্যাশবোর্ড এ যান।</p>
+                    </div>
 
                     {% if form.non_field_errors %}
                         <div class="error-message">
@@ -85,12 +87,12 @@
                     <form id="formAuthentication" class="mb-4" method="POST">
                         {% csrf_token %}
                         <div class="mb-6 form-control-validation">
-                            <label for="id_username" class="form-label">আপনার ইমেইল বা ইউজার নাম লিখুন</label>
+                            <label for="id_username" class="form-label">আপনার ইউজার নাম লিখুন</label>
                             <input
                                     type="text"
                                     class="form-control"
                                     id="id_username"
-                                    name="username" placeholder="আপনার ইউজার নাম অথবা ইমেইল লিখুন"
+                                    name="username" placeholder="আপনার ইউজার নাম লিখুন"
                                     autofocus/>
                         </div>
                         <div class="mb-6 form-password-toggle form-control-validation">

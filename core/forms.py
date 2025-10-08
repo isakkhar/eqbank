@@ -139,9 +139,16 @@ BANGLADESH_DIVISIONS_DISTRICTS_THANAS = {
 
 
 class SignUpForm(forms.Form):
-    username = forms.CharField(label='ইউজারনেম', max_length=150, required=True)
-    password = forms.CharField(label='পাসওয়ার্ড', widget=forms.PasswordInput, required=True)
-    password2 = forms.CharField(label='পাসওয়ার্ড নিশ্চিত করুন', widget=forms.PasswordInput, required=True)
+    username = forms.CharField(label='ইউজার নাম', max_length=150, required=True, widget=forms.TextInput(attrs={
+        'placeholder': 'ইউজার নাম লিখুন'
+    })
+                               )
+    password = forms.CharField(label='পাসওয়ার্ড',  widget=forms.PasswordInput(attrs={
+            'placeholder': 'আপনার পাসওয়ার্ড লিখুন'
+        }), required=True)
+    password2 = forms.CharField(label='পাসওয়ার্ড নিশ্চিত করুন', widget=forms.PasswordInput(attrs={
+            'placeholder': 'পুনরায় আপনার পাসওয়ার্ড লিখুন'
+        }), required=True)
 
     division_choices = [('', '----- বিভাগ নির্বাচন করুন -----')] + [(division, division) for division in
                                                                     BANGLADESH_DIVISIONS_DISTRICTS_THANAS.keys()]

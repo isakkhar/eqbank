@@ -11,6 +11,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('question/', views.question_page, name='question'),
     path('question_bank/', views.question_bank, name='question_bank'),
+    path('question_ready/', views.question_ready, name='question_ready'),
 
     path('ajax/load-districts/', views.load_districts, name='ajax_load_districts'),
     path('ajax/load-thanas/', views.load_thanas, name='ajax_load_thanas'),

@@ -109,3 +109,7 @@ def question_page(request):
 @login_required
 def question_bank(request):
     return render(request, template_name='core/question_bank.html')
+
+@login_required
+def question_ready(request):
+    return render(request, template_name='core/question_ready.html')

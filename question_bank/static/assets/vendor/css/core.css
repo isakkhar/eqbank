@@ -2598,7 +2598,7 @@ progress {
 .form-control:focus {
   color: var(--bs-heading-color);
   background-color: transparent;
-  border-color: var(--bs-primary);
+  border-color: var(--bs-info);
   outline: 0;
   box-shadow: 0 0.125rem 0.375rem 0 rgba(var(--bs-primary-rgb), 0.3);
 }
@@ -8632,7 +8632,7 @@ img[data-app-light-img][data-app-dark-img] {
   padding-inline: calc(0.9375rem - 2px);
 }
 .form-control:focus::file-selector-button, .was-validated .form-control:invalid::file-selector-button, .was-validated .form-control:valid::file-selector-button, .form-control.is-invalid::file-selector-button, .form-control.is-valid::file-selector-button {
-  box-shadow: var(--bs-border-width) 0 0 var(--bs-primary);
+  box-shadow: var(--bs-border-width) 0 0 var(--bs-info);
 }
 .form-control.form-control-lg {
   padding-block: calc(0.575rem - var(--bs-border-width));
