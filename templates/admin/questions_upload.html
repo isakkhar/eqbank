@@ -1,9 +1,47 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-  <h1>Upload Questions CSV</h1>
+  <h1>প্রশ্ন আপলোড করুন</h1>
   <form method="post" enctype="multipart/form-data">{% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="default">Upload</button>
+<button type="submit" class="button upload-btn">
+  <i class="bi bi-cloud-upload-fill me-2"></i>⬆️ আপলোড CSV
+</button>
+
+<!-- Bootstrap Icons (optional for upload icon) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0d6efd, #6610f2);
+  color: #fff !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14.5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+.upload-btn:hover {
+  background: linear-gradient(135deg, #0b5ed7, #520dc2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(13, 110, 253, 0.4);
+}
+.upload-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+.upload-btn i {
+  font-size: 16px;
+}
+</style>
+
+
   </form>
-  <p>CSV should have columns: class_name,subject,chapter (optional),question_type,text (or question), option_a, option_b, option_c, option_d, correct_option</p>
+  <p>CSV-তে কলাম থাকা উচিত: class_name, subject, chapter (ঐচ্ছিক), question_type, text (অথবা question), option_a, option_b, option_c, option_d, correct_option</p>
 {% endblock %}

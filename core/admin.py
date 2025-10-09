@@ -16,15 +16,18 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ('division', 'district', 'thana')
     search_fields = ('user__username', 'user__email')
 
+
 class ClassNameAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
 
+
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'class_name',)
     list_filter = ('class_name',)
     search_fields = ('name',)
+
 
 class ChapterAdmin(admin.ModelAdmin):
     list_display = ('name', 'subject')
