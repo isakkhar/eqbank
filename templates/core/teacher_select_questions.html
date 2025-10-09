@@ -62,11 +62,14 @@
         <div class="mb-3" style="width: 250px;">
             <label for="questionCountInput" class="form-label fw-semibold">কতটি প্রশ্ন দেখাবে</label>
             <input type="number" name="question_count" id="questionCountInput" class="form-control"
-                   placeholder="যেমনঃ 10" min="1" value="{{ request.GET.question_count }}">
+                   placeholder="যেমনঃ ২০" min="1" value="{{ request.GET.question_count }}">
         </div>
 
         <button type="submit" class="btn btn-info mb-4">ফিল্টার প্রয়োগ করুন</button>
+                <!-- <button type="button" class="btn btn-success mb-4 ms-2" id="openCreateModalBtn">নতুন প্রশ্ন তৈরি করুন</button> -->
     </form>
+
+   
 
     {% if show_questions %}
         <form method="post" action="{% url 'prepare_paper' %}">{% csrf_token %}
@@ -79,7 +82,7 @@
                     <div>
                         <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}"
                                class="question-checkbox">
-                        <label for="q{{ q.id }}">{{ q.question_text }}</label>
+                        <label for="q{{ q.id }}">{{ q.text|default:q }}{# fallback to object __str__ #}</label>
                     </div>
                 {% empty %}
                     <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
@@ -122,6 +125,103 @@
         });
         document.getElementById('unselectAllBtn')?.addEventListener('click', function () {
             document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = false);
+        });
+        
+        // Modal handling
+        const openBtn = document.getElementById('openCreateModalBtn');
+        const modal = document.getElementById('createQuestionModal');
+        const closeBtns = [document.getElementById('closeModalBtn'), document.getElementById('closeModalBtn2')];
+        const modalSubmit = document.getElementById('modalSubmitBtn');
+        const modalAlert = document.getElementById('modal_alert');
+
+        function showModal() {
+            // set current class id from filter
+            const classId = document.getElementById('classSelect')?.value || '';
+            document.getElementById('modal_class_id').value = classId;
+            // populate subjects for the class
+            populateSubjects(classId);
+            modal.style.display = 'block';
+        }
+
+        function hideModal() {
+            modal.style.display = 'none';
+            modalAlert.style.display = 'none';
+        }
+
+        openBtn?.addEventListener('click', showModal);
+        closeBtns.forEach(b => b?.addEventListener('click', hideModal));
+
+        async function populateSubjects(classId) {
+            const subjSelect = document.getElementById('modal_subjects');
+            subjSelect.innerHTML = '';
+            if (!classId) return;
+            const res = await fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`);
+            const data = await res.json();
+            data.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id; opt.textContent = s.name;
+                subjSelect.appendChild(opt);
+            });
+        }
+
+        async function populateChaptersForSelectedSubjects() {
+            const subjSelect = document.getElementById('modal_subjects');
+            const selected = Array.from(subjSelect.selectedOptions).map(o => o.value).join(',');
+            const res = await fetch(`{% url 'ajax_load_chapters' %}?subject_ids=${selected}`);
+            const data = await res.json();
+            const chapSelect = document.getElementById('modal_chapters');
+            chapSelect.innerHTML = '';
+            data.forEach(ch => {
+                const opt = document.createElement('option');
+                opt.value = ch.id; opt.textContent = ch.name;
+                chapSelect.appendChild(opt);
+            });
+        }
+
+        document.getElementById('modal_subjects')?.addEventListener('change', populateChaptersForSelectedSubjects);
+
+        // CSRF helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        modalSubmit?.addEventListener('click', async function () {
+            const form = document.getElementById('createQuestionForm');
+            const formData = new FormData(form);
+            // append multi selects values
+            const subjVals = Array.from(document.getElementById('modal_subjects').selectedOptions).map(o => o.value);
+            subjVals.forEach(v => formData.append('subjects', v));
+            const chapVals = Array.from(document.getElementById('modal_chapters').selectedOptions).map(o => o.value);
+            chapVals.forEach(v => formData.append('chapters', v));
+            // send class_id as well
+            formData.append('class_id', document.getElementById('modal_class_id').value || '');
+
+            const csrftoken = getCookie('csrftoken');
+
+            const res = await fetch("{% url 'create_question_from_modal' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                // success -> reload to show new questions
+                location.reload();
+            } else {
+                modalAlert.style.display = 'block';
+                modalAlert.textContent = data.error || (data.errors ? data.errors.join('; ') : 'Unknown error');
+            }
         });
     </script>
 {% endblock %}

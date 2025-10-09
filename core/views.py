@@ -11,6 +11,9 @@ from core.forms import SignUpForm, BANGLADESH_DIVISIONS_DISTRICTS_THANAS, Questi
 from .models import Profile, ClassName, Subject, Chapter, QuestionPaper
 from .models import Question
 
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
 
 # Create your views here.
 def landing_page(request):
@@ -141,15 +144,19 @@ def teacher_question_select(request):
         if subject_id:
             chapters = Chapter.objects.filter(subject_id=subject_id)
         
-        # Only show questions if all required fields are selected
-        if class_id and subject_id and chapter_id and question_type and question_count:
+        # Show questions when class, subject, question_type and question_count are provided.
+        # Chapter is optional — if provided, filter by it, otherwise include questions without chapter filter.
+        if class_id and subject_id and question_type and question_count:
             show_questions = True
-            questions = Question.objects.filter(
-                class_name_id=class_id,
-                subject_id=subject_id,
-                chapter_id=chapter_id,
-                question_type=question_type
-            )
+            q_filters = {
+                'class_name_id': class_id,
+                'subject_id': subject_id,
+                'question_type': question_type,
+            }
+            if chapter_id:
+                q_filters['chapter_id'] = chapter_id
+
+            questions = Question.objects.filter(**q_filters).order_by('-created_at')
             
             print(f"Debug - Total questions found: {questions.count()}")
             
@@ -372,4 +379,128 @@ def ajax_load_chapters(request):
         # Chapter model uses `subject` FK; filter by subject_id
         chapters = Chapter.objects.filter(subject_id__in=subject_ids).values('id', 'name')
         return JsonResponse(list(chapters), safe=False)
+
     return JsonResponse([], safe=False)
+
+
+@login_required
+@require_POST
+def create_question_from_modal(request):
+    """Create question(s) from the modal on the teacher select page.
+    Accepts multipart/form-data with fields:
+      - class_id (required)
+      - text (required)
+      - question_type
+      - option_a..option_d
+      - correct_option
+      - subjects (optional, multiple)
+      - chapters (optional, multiple)
+
+    Returns JSON {created: n, errors: [..]}.
+    """
+    class_id = request.POST.get('class_id') or request.POST.get('class')
+    if not class_id:
+        return JsonResponse({'error': 'class_id is required'}, status=400)
+
+    try:
+        class_obj = ClassName.objects.get(id=int(class_id))
+    except (ClassName.DoesNotExist, ValueError):
+        return JsonResponse({'error': 'invalid class'}, status=400)
+
+    text = (request.POST.get('text') or '').strip()
+    if not text:
+        return JsonResponse({'error': 'question text is required'}, status=400)
+
+    question_type = request.POST.get('question_type') or 'mcq'
+    option_a = request.POST.get('option_a') or None
+    option_b = request.POST.get('option_b') or None
+    option_c = request.POST.get('option_c') or None
+    option_d = request.POST.get('option_d') or None
+    correct_option = (request.POST.get('correct_option') or '').strip() or None
+
+    subjects = request.POST.getlist('subjects')
+    chapters = request.POST.getlist('chapters')
+
+    # If no multi selections provided, try to fallback to the current filters (subject/chapter fields)
+    if not subjects:
+        cur_subj = request.POST.get('subject_id') or request.GET.get('subject_id')
+        if cur_subj:
+            subjects = [cur_subj]
+    if not chapters:
+        cur_chap = request.POST.get('chapter_id') or request.GET.get('chapter_id')
+        if cur_chap:
+            chapters = [cur_chap]
+
+    subj_qs = Subject.objects.filter(id__in=subjects, class_name=class_obj) if subjects else None
+    chap_qs = Chapter.objects.filter(id__in=chapters) if chapters else None
+
+    created = 0
+    errors = []
+
+    # Create per combinations similar to admin behavior
+    try:
+        if subj_qs and chap_qs:
+            for s in subj_qs:
+                for ch in chap_qs.filter(subject_id=s.id):
+                    Question.objects.create(
+                        text=text,
+                        question_type=question_type,
+                        class_name=class_obj,
+                        subject=s,
+                        chapter=ch,
+                        option_a=option_a,
+                        option_b=option_b,
+                        option_c=option_c,
+                        option_d=option_d,
+                        correct_option=correct_option
+                    )
+                    created += 1
+        elif subj_qs:
+            for s in subj_qs:
+                Question.objects.create(
+                    text=text,
+                    question_type=question_type,
+                    class_name=class_obj,
+                    subject=s,
+                    chapter=None,
+                    option_a=option_a,
+                    option_b=option_b,
+                    option_c=option_c,
+                    option_d=option_d,
+                    correct_option=correct_option
+                )
+                created += 1
+        elif chap_qs:
+            for ch in chap_qs:
+                Question.objects.create(
+                    text=text,
+                    question_type=question_type,
+                    class_name=class_obj,
+                    subject=ch.subject,
+                    chapter=ch,
+                    option_a=option_a,
+                    option_b=option_b,
+                    option_c=option_c,
+                    option_d=option_d,
+                    correct_option=correct_option
+                )
+                created += 1
+        else:
+            # no subjects/chapters provided — create single question in no-subject state (not ideal)
+            Question.objects.create(
+                text=text,
+                question_type=question_type,
+                class_name=class_obj,
+                subject=None,
+                chapter=None,
+                option_a=option_a,
+                option_b=option_b,
+                option_c=option_c,
+                option_d=option_d,
+                correct_option=correct_option
+            )
+            created = 1
+    except Exception as e:
+        errors.append(str(e))
+
+    return JsonResponse({'created': created, 'errors': errors})
