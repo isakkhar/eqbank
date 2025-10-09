@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ paper.program_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .a4-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 20mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .info-left, .info-right {
+            flex: 1;
+        }
+
+        .info-item {
+            margin: 5px 0;
+        }
+
+        .questions-section {
+            margin-top: 25px;
+        }
+
+        .question-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .question-text {
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .option {
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .correct-answer {
+            margin-top: 10px;
+            padding: 8px;
+            background: #e8f5e9;
+            border-left: 3px solid #4caf50;
+            font-size: 14px;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .print-button:hover {
+            background: #45a049;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .a4-container {
+                width: 100%;
+                margin: 0;
+                padding: 15mm;
+                box-shadow: none;
+            }
+
+            .print-button {
+                display: none;
+            }
+
+            .correct-answer {
+                display: none;
+            }
+
+            .question-item {
+                page-break-inside: avoid;
+            }
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">
+        🖨️ প্রিন্ট করুন
+    </button>
+
+    <div class="a4-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ school_name|default:paper.program_name }}</h1>
+            <h2>{{ paper.class_level.name }} - 
+                {% for subject in paper.subjects.all %}
+                    {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </h2>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <div class="info-left">
+                <div class="info-item"><strong>পরীক্ষার ধরন:</strong> 
+                    {% if paper.question_type == 'mcq' %}
+                        বহু নির্বাচনি
+                    {% elif paper.question_type == 'creative' %}
+                        সৃজনশীল
+                    {% else %}
+                        সমন্বিত প্রশ্ন
+                    {% endif %}
+                </div>
+                <div class="info-item"><strong>মোট প্রশ্ন:</strong> {{ questions.count }} টি</div>
+            </div>
+            <div class="info-right" style="text-align: right;">
+                <div class="info-item"><strong>সময়:</strong> {{ duration|default:"৬০ মিনিট" }}</div>
+                <div class="info-item"><strong>পূর্ণমান:</strong> {{ total_marks|default:questions.count }}</div>
+                <div class="info-item"><strong>তারিখ:</strong> {{ paper.created_at|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div class="questions-section">
+            {% for question in questions %}
+            <div class="question-item">
+                <div class="question-number">
+                    প্রশ্ন {{ forloop.counter }}:
+                </div>
+                <div class="question-text">
+                    {{ question.text }}
+                </div>
+
+                {% if question.question_type == 'mcq' %}
+                <div class="options">
+                    {% if question.option_a %}
+                    <div class="option">ক) {{ question.option_a }}</div>
+                    {% endif %}
+                    {% if question.option_b %}
+                    <div class="option">খ) {{ question.option_b }}</div>
+                    {% endif %}
+                    {% if question.option_c %}
+                    <div class="option">গ) {{ question.option_c }}</div>
+                    {% endif %}
+                    {% if question.option_d %}
+                    <div class="option">ঘ) {{ question.option_d }}</div>
+                    {% endif %}
+                </div>
+
+                {% if question.correct_option %}
+                <div class="correct-answer">
+                    <strong>সঠিক উত্তর:</strong> {{ question.correct_option }}
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% empty %}
+            <p>কোনো প্রশ্ন নেই।</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

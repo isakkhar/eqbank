@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
@@ -216,6 +217,55 @@ def prepare_paper_view(request):
 @login_required
 def question_ready(request):
     return render(request, template_name='core/question_ready.html')
+
+@login_required
+def my_papers_list(request):
+    """Display all question papers created by the current user in a table with pagination"""
+    papers_list = QuestionPaper.objects.filter(creator=request.user).order_by('-created_at')
+    
+    # Pagination: 10 papers per page
+    paginator = Paginator(papers_list, 10)
+    page_number = request.GET.get('page', 1)
+    
+    try:
+        papers = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page
+        papers = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page of results
+        papers = paginator.page(paginator.num_pages)
+    
+    return render(request, 'core/my_papers_list.html', {'papers': papers})
+
+@login_required
+def paper_delete_view(request, paper_id):
+    """Delete a specific paper created by the current user"""
+    try:
+        paper = QuestionPaper.objects.get(id=paper_id, creator=request.user)
+        paper.delete()
+        return JsonResponse({'success': True, 'message': 'পেপার সফলভাবে মুছে ফেলা হয়েছে'})
+    except QuestionPaper.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'পেপার পাওয়া যায়নি'}, status=404)
+
+@login_required
+def paper_detail_view(request, paper_id):
+    """Display a specific paper in A4 format for viewing/printing"""
+    try:
+        paper = QuestionPaper.objects.get(id=paper_id, creator=request.user)
+    except QuestionPaper.DoesNotExist:
+        return redirect('my_papers_list')
+    
+    questions = paper.questions.all()
+    
+    context = {
+        'paper': paper,
+        'questions': questions,
+        'school_name': paper.program_name,
+        'total_marks': paper.number_of_questions * 1,  # Assuming 1 mark per question
+        'duration': '60 মিনিট',  # Default duration
+    }
+    return render(request, 'core/paper_detail_a4.html', context)
 
 
 @login_required

@@ -90,10 +90,10 @@ class Question(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
 
     # optional fields for MCQ
-    option_a = models.TextField(null=True, blank=True)
-    option_b = models.TextField(null=True, blank=True)
-    option_c = models.TextField(null=True, blank=True)
-    option_d = models.TextField(null=True, blank=True)
+    option_a = models.CharField(max_length=1000, null=True, blank=True)
+    option_b = models.CharField(max_length=1000, null=True, blank=True)
+    option_c = models.CharField(max_length=1000, null=True, blank=True)
+    option_d = models.CharField(max_length=1000, null=True, blank=True)
     correct_option = models.CharField(max_length=2, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -104,4 +104,4 @@ class Question(models.Model):
 
     class Meta:
         verbose_name = 'প্রশ্ন'
-        verbose_name_plural = 'প্রশ্নসমূহ'
+        verbose_name_plural = 'প্রশ্ন সমূহ'

@@ -1,121 +1,127 @@
-
 {% extends 'users/base.html' %}
 {% block title %} প্রশ্ন নির্বাচন {% endblock %}
 {% block content %}
-<h3>প্রশ্ন নির্বাচন</h3>
-<form method="get" id="filterForm">
-  <div class="mb-3" style="width: 250px;">
-    <label for="classSelect" class="form-label fw-semibold">ক্লাস</label>
-    <select name="class_id" id="classSelect" class="form-select"
-      onchange="document.getElementById('filterForm').submit()">
-      <option value="">-- ক্লাস নির্বাচন করুন --</option>
-      {% for c in classes %}
-      <option value="{{ c.id }}" {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>
-        {{ c.name }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
+    <h3>প্রশ্ন নির্বাচন</h3>
+    <form method="get" id="filterForm">
+        <div class="mb-3" style="width: 250px;">
+            <label for="classSelect" class="form-label fw-semibold">ক্লাস</label>
+            <select name="class_id" id="classSelect" class="form-select"
+                    onchange="document.getElementById('filterForm').submit()">
+                <option value="">-- ক্লাস নির্বাচন করুন --</option>
+                {% for c in classes %}
+                    <option value="{{ c.id }}"
+                            {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-  <div class="mb-3" style="width: 250px;">
-    <label for="subjectSelect" class="form-label fw-semibold">বিষয়</label>
-    <select name="subject_id" id="subjectSelect" class="form-select"
-      onchange="document.getElementById('filterForm').submit()">
-      <option value="">-- বিষয় নির্বাচন করুন --</option>
-      {% for s in subjects %}
-      <option value="{{ s.id }}" {% if request.GET.subject_id == s.id|stringformat:"s" %}selected{% endif %}>
-        {{ s.name }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
+        <div class="mb-3" style="width: 250px;">
+            <label for="subjectSelect" class="form-label fw-semibold">বিষয়</label>
+            <select name="subject_id" id="subjectSelect" class="form-select"
+                    onchange="document.getElementById('filterForm').submit()">
+                <option value="">-- বিষয় নির্বাচন করুন --</option>
+                {% for s in subjects %}
+                    <option value="{{ s.id }}"
+                            {% if request.GET.subject_id == s.id|stringformat:"s" %}selected{% endif %}>
+                        {{ s.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-  <div class="mb-3" style="width: 250px;">
-    <label for="chapterSelect" class="form-label fw-semibold">অধ্যায়</label>
-    <select name="chapter_id" id="chapterSelect" class="form-select"
-      onchange="document.getElementById('filterForm').submit()">
-      <option value="">-- অধ্যায় নির্বাচন করুন --</option>
-      {% for ch in chapters %}
-      <option value="{{ ch.id }}" {% if request.GET.chapter_id == ch.id|stringformat:"s" %}selected{% endif %}>
-        {{ ch.name }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
+        <div class="mb-3" style="width: 250px;">
+            <label for="chapterSelect" class="form-label fw-semibold">অধ্যায়</label>
+            <select name="chapter_id" id="chapterSelect" class="form-select"
+                    onchange="document.getElementById('filterForm').submit()">
+                <option value="">-- অধ্যায় নির্বাচন করুন --</option>
+                {% for ch in chapters %}
+                    <option value="{{ ch.id }}"
+                            {% if request.GET.chapter_id == ch.id|stringformat:"s" %}selected{% endif %}>
+                        {{ ch.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-  <div class="mb-3" style="width: 250px;">
-    <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
-    <select name="question_type" id="questionTypeSelect" class="form-select"
-      onchange="document.getElementById('filterForm').submit()">
-      <option value="">-- প্রশ্নের ধরন নির্বাচন করুন --</option>
-      <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি</option>
-      <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল</option>
-      <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত উত্তর</option>
-    </select>
-  </div>
+        <div class="mb-3" style="width: 250px;">
+            <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
+            <select name="question_type" id="questionTypeSelect" class="form-select"
+                    onchange="document.getElementById('filterForm').submit()">
+                <option value="">-- প্রশ্নের ধরন নির্বাচন করুন --</option>
+                <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি
+                </option>
+                <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল
+                </option>
+                <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত উত্তর
+                </option>
+            </select>
+        </div>
 
-  <div class="mb-3" style="width: 250px;">
-    <label for="questionCountInput" class="form-label fw-semibold">কতটি প্রশ্ন দেখাবে</label>
-    <input type="number" name="question_count" id="questionCountInput" class="form-control" 
-      placeholder="যেমনঃ 10" min="1" value="{{ request.GET.question_count }}">
-  </div>
-  
-  <button type="submit" class="btn btn-info mb-4">ফিল্টার প্রয়োগ করুন</button>
-</form>
+        <div class="mb-3" style="width: 250px;">
+            <label for="questionCountInput" class="form-label fw-semibold">কতটি প্রশ্ন দেখাবে</label>
+            <input type="number" name="question_count" id="questionCountInput" class="form-control"
+                   placeholder="যেমনঃ 10" min="1" value="{{ request.GET.question_count }}">
+        </div>
 
-{% if show_questions %}
-<form method="post" action="{% url 'prepare_paper' %}">{% csrf_token %}
-  <div>
-    <div style="margin-bottom:8px" class="mt-4">
-      <button type="button" id="selectAllBtn" class="btn btn-sm btn-info">সিলেক্ট করুন</button>
-      <button type="button" id="unselectAllBtn" class="btn btn-sm btn-warning">আন সিলেক্ট করুন</button>
-    </div>
-    {% for q in questions %}
-    <div>
-      <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}" class="question-checkbox">
-      <label for="q{{ q.id }}">{{ q }}</label>
-    </div>
-    {% empty %}
-    <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
-    {% endfor %}
-  </div>
+        <button type="submit" class="btn btn-info mb-4">ফিল্টার প্রয়োগ করুন</button>
+    </form>
 
-  <h4 class="mt-4">পেপারের তথ্য</h4>
-  <div class="mb-3" style="width: 400px;">
-    <label for="defaultFormControlInput" class="form-label fw-semibold">
-      প্রতিষ্ঠানের নাম
-    </label>
-    <input type="text" name="school_name" id="defaultFormControlInput" class="form-control"
-      placeholder="প্রতিষ্ঠানের নাম লিখুন" />
-  </div>
+    {% if show_questions %}
+        <form method="post" action="{% url 'prepare_paper' %}">{% csrf_token %}
+            <div>
+                <div style="margin-bottom:8px" class="mt-4">
+                    <button type="button" id="selectAllBtn" class="btn btn-sm btn-info">সিলেক্ট করুন</button>
+                    <button type="button" id="unselectAllBtn" class="btn btn-sm btn-warning">আন সিলেক্ট করুন</button>
+                </div>
+                {% for q in questions %}
+                    <div>
+                        <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}"
+                               class="question-checkbox">
+                        <label for="q{{ q.id }}">{{ q.question_text }}</label>
+                    </div>
+                {% empty %}
+                    <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
+                {% endfor %}
+            </div>
 
-  <div class="mb-3" style="width: 250px;">
-    <label class="form-label fw-semibold">সময় (মিনিট)</label>
-    <input type="number" name="duration" class="form-control" placeholder="যেমনঃ 60" />
-  </div>
+            <h4 class="mt-4">পেপারের তথ্য</h4>
+            <div class="mb-3" style="width: 400px;">
+                <label for="defaultFormControlInput" class="form-label fw-semibold">
+                    প্রতিষ্ঠানের নাম
+                </label>
+                <input type="text" name="school_name" id="defaultFormControlInput" class="form-control"
+                       placeholder="প্রতিষ্ঠানের নাম লিখুন"/>
+            </div>
 
-  <div class="mb-3" style="width: 250px;">
-    <label class="form-label fw-semibold">মোট নম্বর</label>
-    <input type="number" name="total_marks" class="form-control" placeholder="যেমনঃ 100" />
-  </div>
+            <div class="mb-3" style="width: 250px;">
+                <label class="form-label fw-semibold">সময় (মিনিট)</label>
+                <input type="number" name="duration" class="form-control" placeholder="যেমনঃ 60"/>
+            </div>
 
-  <label><input type="checkbox" name="include_omr" /> OMR দেখান</label>
-  <br>
-  <button type="submit" class="btn btn-info" style="margin-top: 30px;">প্রশ্ন প্রস্তুত করুন</button>
-</form>
-{% else %}
-<div class="alert alert-info mt-4" role="alert">
-  সকল ফিল্ড নির্বাচন করুন এবং "ফিল্টার প্রয়োগ করুন" বাটনে ক্লিক করুন।
-</div>
-{% endif %}
+            <div class="mb-3" style="width: 250px;">
+                <label class="form-label fw-semibold">মোট নম্বর</label>
+                <input type="number" name="total_marks" class="form-control" placeholder="যেমনঃ 100"/>
+            </div>
 
-<script>
-  // Select All / Unselect All handlers
-  document.getElementById('selectAllBtn')?.addEventListener('click', function () {
-    document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = true);
-  });
-  document.getElementById('unselectAllBtn')?.addEventListener('click', function () {
-    document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = false);
-  });
-</script>
+            <label><input type="checkbox" name="include_omr"/> OMR দেখান</label>
+            <br>
+            <button type="submit" class="btn btn-info" style="margin-top: 30px;">প্রশ্ন প্রস্তুত করুন</button>
+        </form>
+    {% else %}
+        <div class="alert alert-info mt-4" role="alert">
+            সকল ফিল্ড নির্বাচন করুন এবং "ফিল্টার প্রয়োগ করুন" বাটনে ক্লিক করুন।
+        </div>
+    {% endif %}
+
+    <script>
+        // Select All / Unselect All handlers
+        document.getElementById('selectAllBtn')?.addEventListener('click', function () {
+            document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = true);
+        });
+        document.getElementById('unselectAllBtn')?.addEventListener('click', function () {
+            document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = false);
+        });
+    </script>
 {% endblock %}

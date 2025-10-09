@@ -90,6 +90,12 @@
                         <div>প্রশ্ন ব্যাংক</div>
                     </a>
                 </li>
+                <li class="menu-item {% if request.resolver_match.url_name == 'my_papers_list' %}active{% endif %}">
+                    <a href="{% url 'my_papers_list' %}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-file-text"></i>
+                        <div>আমার পেপার সমূহ</div>
+                    </a>
+                </li>
             </ul>
         </aside>
         <div class="layout-page">
