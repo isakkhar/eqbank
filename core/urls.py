@@ -28,5 +28,5 @@ urlpatterns = [
     # My Papers URLs
     path('my-papers/', views.my_papers_list, name='my_papers_list'),
     path('paper/<int:paper_id>/', views.paper_detail_view, name='paper_detail'),
-    path('paper/<int:paper_id>/delete/', views.paper_delete_view, name='paper_delete'),
+    path('paper/<int:paper_id>/delete/', views.delete_paper, name='delete_paper'),
 ]

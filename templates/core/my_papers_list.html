@@ -1,192 +1,200 @@
 {% extends 'users/base.html' %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">আমার তৈরি পেপার সমূহ</h4>
-        <a href="{% url 'teacher_select_questions' %}" class="btn btn-info">
-            <i class="ti ti-plus me-1"></i> নতুন পেপার তৈরি করুন
-        </a>
-    </div>
-    <div class="card-body">
-        {% if papers %}
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>পেপারের নাম</th>
-                        <th>ক্লাস</th>
-                        <th>প্রশ্নের ধরন</th>
-                        <th>প্রশ্নের সংখ্যা</th>
-                        <th>তৈরির তারিখ</th>
-                        <th class="text-center">অ্যাকশন</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for paper in papers %}
-                    <tr id="paper-row-{{ paper.id }}">
-                        <td>{{ forloop.counter|add:papers.start_index|add:"-1" }}</td>
-                        <td>
-                            <strong>{{ paper.program_name }}</strong>
-                            <br>
-                            <small class="text-muted">
-                                বিষয়: 
-                                {% for subject in paper.subjects.all %}
-                                    {{ subject.name }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </small>
-                        </td>
-                        <td>{{ paper.class_level.name }}</td>
-                        <td>
-                            {% if paper.question_type == 'mcq' %}
-                                <span class="badge bg-primary">বহু নির্বাচনি</span>
-                            {% elif paper.question_type == 'creative' %}
-                                <span class="badge bg-success">সৃজনশীল</span>
-                            {% else %}
-                                <span class="badge bg-info">সমন্বিত</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ paper.questions.count }} টি</td>
-                        <td>{{ paper.created_at|date:"d M Y, h:i A" }}</td>
-                        <td class="text-center">
-                            <a href="{% url 'paper_detail' paper.id %}" class="btn btn-sm btn-success" target="_blank" title="দেখুন">
-                                <i class="ti ti-eye"></i>
-                            </a>
-                            <button class="btn btn-sm btn-danger ms-1" 
-                                    onclick="confirmDelete({{ paper.id }}, '{{ paper.program_name|escapejs }}')" 
-                                    title="মুছে ফেলুন">
-                                <i class="ti ti-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination Controls -->
-        {% if papers.has_other_pages %}
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <!-- Previous Button -->
-                {% if papers.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="First">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ papers.previous_page_number }}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">&laquo;&laquo;</span>
-                </li>
-                <li class="page-item disabled">
-                    <span class="page-link">&laquo;</span>
-                </li>
-                {% endif %}
-
-                <!-- Page Numbers -->
-                {% for num in papers.paginator.page_range %}
-                    {% if papers.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                    {% elif num > papers.number|add:'-3' and num < papers.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-
-                <!-- Next Button -->
-                {% if papers.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ papers.next_page_number }}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ papers.paginator.num_pages }}" aria-label="Last">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-                {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">&raquo;</span>
-                </li>
-                <li class="page-item disabled">
-                    <span class="page-link">&raquo;&raquo;</span>
-                </li>
-                {% endif %}
-            </ul>
-            
-            <!-- Page Info -->
-            <div class="text-center mt-2">
-                <small class="text-muted">
-                    পেজ {{ papers.number }} / {{ papers.paginator.num_pages }} 
-                    (মোট {{ papers.paginator.count }} টি পেপার)
-                </small>
-            </div>
-        </nav>
-        {% endif %}
-
-        {% else %}
-        <div class="text-center py-5">
-            <i class="ti ti-file-x" style="font-size: 4rem; color: #ccc;"></i>
-            <h5 class="mt-3">কোনো পেপার পাওয়া যায়নি</h5>
-            <p class="text-muted">আপনি এখনো কোনো পেপার তৈরি করেননি।</p>
-            <a href="{% url 'teacher_select_questions' %}" class="btn btn-primary mt-2">
-                <i class="ti ti-plus me-1"></i> প্রথম পেপার তৈরি করুন
+    <div class="card">
+        {% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">আমার তৈরি পেপার সমূহ</h4>
+            <a href="{% url 'teacher_select_questions' %}" class="btn btn-info">
+                <i class="menu-icon icon-base ti tabler-plus me-1"></i> নতুন পেপার তৈরি করুন
+{#                <i class="menu-icon icon-base ti tabler-list"></i>#}
             </a>
         </div>
-        {% endif %}
-    </div>
-</div>
+        <div class="card-body">
+            {% if papers %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>পেপারের নাম</th>
+                            <th>ক্লাস</th>
+                            <th>প্রশ্নের ধরন</th>
+                            <th>প্রশ্নের সংখ্যা</th>
+                            <th>তৈরির তারিখ</th>
+                            <th class="text-center">অ্যাকশন</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for paper in papers %}
+                            <tr id="paper-row-{{ paper.id }}">
+                                <td>{{ forloop.counter|add:papers.start_index|add:"-1" }}</td>
+                                <td>
+                                    <strong>{{ paper.program_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        বিষয়:
+                                        {% for subject in paper.subjects.all %}
+                                            {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </small>
+                                </td>
+                                <td>{{ paper.class_level.name }}</td>
+                                <td>
+                                    {% if paper.question_type == 'mcq' %}
+                                        <span class="badge bg-primary">বহু নির্বাচনি</span>
+                                    {% elif paper.question_type == 'creative' %}
+                                        <span class="badge bg-success">সৃজনশীল</span>
+                                    {% else %}
+                                        <span class="badge bg-info">সমন্বিত</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ paper.questions.count }} টি</td>
+                                <td>{{ paper.created_at|date:"d M Y, h:i A" }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'paper_detail' paper.id %}" class="btn btn-sm btn-success"
+                                       target="_blank" title="দেখুন">
+                                        <i class=" ti tabler-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger ms-1"
+                                            onclick="confirmDelete({{ paper.id }}, '{{ paper.program_name|escapejs }}')"
+                                            title="মুছে ফেলুন">
+                                        <i class=" ti tabler-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="ti ti-alert-triangle me-2"></i>নিশ্চিত করুন
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-2">আপনি কি নিশ্চিত যে এই পেপারটি মুছে ফেলতে চান?</p>
-                <p class="fw-bold text-danger" id="paperNameToDelete"></p>
-                <p class="text-muted small mb-0">
-                    <i class="ti ti-info-circle me-1"></i>এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="ti ti-x me-1"></i>বাতিল করুন
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-                    <i class="ti ti-trash me-1"></i>হ্যাঁ, মুছে ফেলুন
-                </button>
+                <!-- Pagination Controls -->
+                {% if papers.has_other_pages %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <!-- Previous Button -->
+                            {% if papers.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ papers.previous_page_number }}"
+                                       aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;&laquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+
+                            <!-- Page Numbers -->
+                            {% for num in papers.paginator.page_range %}
+                                {% if papers.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > papers.number|add:'-3' and num < papers.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- Next Button -->
+                            {% if papers.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ papers.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ papers.paginator.num_pages }}"
+                                       aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+
+                        <!-- Page Info -->
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                পেজ {{ papers.number }} / {{ papers.paginator.num_pages }}
+                                (মোট {{ papers.paginator.count }} টি পেপার)
+                            </small>
+                        </div>
+                    </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="ti ti-file-x" style="font-size: 4rem; color: #ccc;"></i>
+                    <h5 class="mt-3">কোনো পেপার পাওয়া যায়নি</h5>
+                    <p class="text-muted">আপনি এখনো কোনো পেপার তৈরি করেননি।</p>
+                    <a href="{% url 'teacher_select_questions' %}" class="btn btn-info mt-2">
+                        <i class="menu-icon icon-base ti tabler-plus me-1"></i> প্রথম পেপার তৈরি করুন
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="menu-icon icon-base ti tabler-alert-triangle me-2"></i>নিশ্চিত করুন
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">আপনি কি নিশ্চিত যে এই পেপারটি মুছে ফেলতে চান?</p>
+                    <p class="fw-bold text-danger" id="paperNameToDelete"></p>
+                    <p class="text-muted small mb-0">
+                        <i class="menu-icon icon-base ti tabler-circle me-1"></i>এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                                                <i class="menu-icon icon-base ti tabler-cancel"></i> বাতিল করুন
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="menu-icon icon-base ti tabler-trash me-1"></i>হ্যাঁ, মুছে ফেলুন
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Success/Error Toast -->
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 11000">
-    <div id="deleteToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body" id="toastMessage">
+    <!-- Success/Error Toast -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11000">
+        <div id="deleteToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive"
+             aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -195,92 +203,99 @@ let paperToDelete = null;
 const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
 const deleteToast = new bootstrap.Toast(document.getElementById('deleteToast'));
 
+/**
+ * Shows the delete confirmation modal.
+ * @param {number} paperId - The ID of the paper to be deleted.
+ * @param {string} paperName - The name of the paper.
+ */
 function confirmDelete(paperId, paperName) {
     paperToDelete = paperId;
     document.getElementById('paperNameToDelete').textContent = paperName;
     deleteModal.show();
 }
 
+// Add event listener to the final delete button in the modal
 document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
     if (!paperToDelete) return;
-    
+
     const btn = this;
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>মুছে ফেলা হচ্ছে...';
-    
-    // CSRF token
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
-                      getCookie('csrftoken');
-    
-    fetch(`/paper/${paperToDelete}/delete/`, {
+
+    // Get the CSRF token from the hidden input field in the template
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Send the delete request to the server
+    fetch(`/accounts/paper/${paperToDelete}/delete/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            // Handle HTTP errors like 404 or 500
+            return response.json().then(err => { throw new Error(err.message || 'Server error'); });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // Remove the row from table with animation
+            // If successful, remove the table row with a fade-out animation
             const row = document.getElementById(`paper-row-${paperToDelete}`);
             if (row) {
-                row.style.transition = 'opacity 0.3s';
+                row.style.transition = 'opacity 0.4s ease-out';
                 row.style.opacity = '0';
                 setTimeout(() => {
                     row.remove();
-                    
-                    // Check if table is now empty
+                    // If the table body is now empty, reload the page to show the "No papers found" message
                     const tbody = document.querySelector('tbody');
                     if (tbody && tbody.children.length === 0) {
                         location.reload();
                     }
-                }, 300);
+                }, 400);
             }
-            
+
             showToast(data.message, 'success');
             deleteModal.hide();
         } else {
+            // If the server returns success=false
             showToast(data.message, 'danger');
         }
     })
     .catch(error => {
+        // Handle network errors or errors thrown from the response
         console.error('Error:', error);
-        showToast('একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'danger');
+        showToast(error.message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'danger');
     })
     .finally(() => {
+        // Re-enable the button and restore its original text
         btn.disabled = false;
         btn.innerHTML = originalText;
-        paperToDelete = null;
+        paperToDelete = null; // Reset the paper ID
     });
 });
 
+/**
+ * Displays a toast notification.
+ * @param {string} message - The message to show.
+ * @param {string} type - The type of toast ('success' or 'danger').
+ */
 function showToast(message, type) {
     const toastElement = document.getElementById('deleteToast');
     const toastMessage = document.getElementById('toastMessage');
-    
-    toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning');
-    toastElement.classList.add(`bg-${type}`);
-    toastMessage.innerHTML = `<i class="ti ti-${type === 'success' ? 'check' : 'alert-circle'} me-2"></i>${message}`;
-    
-    deleteToast.show();
-}
 
-// Function to get CSRF token from cookies
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+    // Remove previous color classes and add the new one
+    toastElement.classList.remove('bg-success', 'bg-danger');
+    toastElement.classList.add(`bg-${type}`);
+
+    // Set the icon and message
+    const iconClass = type === 'success' ? 'ti-check' : 'ti-alert-circle';
+    toastMessage.innerHTML = `<i class="ti ${iconClass} me-2"></i>${message}`;
+
+    deleteToast.show();
 }
 </script>
 {% endblock %}

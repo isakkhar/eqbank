@@ -26,6 +26,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 
 
     <style>
@@ -64,46 +65,46 @@
                 </a>
             </div>
             <div class="menu-inner-shadow"></div>
-        <ul class="menu-inner py-1">
-        <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-            <a href="{% url 'dashboard' %}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-smart-home"></i>
-                <div>ড্যাশবোর্ড</div>
-            </a>
-        </li>
+            <ul class="menu-inner py-1">
+                <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <a href="{% url 'dashboard' %}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-smart-home"></i>
+                        <div>ড্যাশবোর্ড</div>
+                    </a>
+                </li>
 
-        <li class="menu-item {% if request.resolver_match.url_name == 'question' %}active{% endif %}">
-            <a href="{% url 'question' %}" class="menu-link">
-{#                <i class="fa-regular fa-circle-question"></i>#}
-                <i class="menu-icon icon-base ti tabler-files"></i>
-                <div>প্রশ্ন তৈরি</div>
-            </a>
-        </li>
-           <li class="menu-item {% if request.resolver_match.url_name == 'question_bank' %}active{% endif %}">
-            <a href="{% url 'question_bank' %}" class="menu-link">
-{#                <i class="fa-regular fa-circle-question"></i>#}
-                <i class="menu-icon icon-base ti tabler-files"></i>
-                <div>প্রশ্ন ব্যাংক</div>
-            </a>
-        </li>
+                <li class="menu-item {% if request.resolver_match.url_name == 'question' %}active{% endif %}">
+                    <a href="{% url 'question' %}" class="menu-link">
+                        {#                <i class="fa-regular fa-circle-question"></i>#}
+                        <i class="menu-icon icon-base ti tabler-files"></i>
+                        <div>প্রশ্ন তৈরি</div>
+                    </a>
+                </li>
+                <li class="menu-item {% if request.resolver_match.url_name == 'question_bank' %}active{% endif %}">
+                    <a href="{% url 'question_bank' %}" class="menu-link">
+                        {#                <i class="fa-regular fa-circle-question"></i>#}
+                        <i class="menu-icon icon-base ti tabler-files"></i>
+                        <div>প্রশ্ন ব্যাংক</div>
+                    </a>
+                </li>
 
-{#        <li class="menu-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">#}
-{#            <a href="{% url 'profile' %}" class="menu-link">#}
-{#                 <i class="menu-icon tf-icons ti ti-user"></i>#}
-{#                <div>My Profile</div>#}
-{#            </a>#}
-{#        </li>#}
-{#        #}
-    </ul>
+                {#        <li class="menu-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">#}
+                {#            <a href="{% url 'profile' %}" class="menu-link">#}
+                {#                 <i class="menu-icon tf-icons ti ti-user"></i>#}
+                {#                <div>My Profile</div>#}
+                {#            </a>#}
+                {#        </li>#}
+                {#        #}
+            </ul>
         </aside>
         <div class="layout-page">
-                {% include 'core/partials/navbar.html' %}
-{#            <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"#}
-{#                 id="layout-navbar">#}
-{#                <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">#}
-{#                    {% include 'users/partials/_user_dropdown.html' %}#}
-{#                </div>#}
-{#            </nav>#}
+            {% include 'core/partials/navbar.html' %}
+            {#            <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"#}
+            {#                 id="layout-navbar">#}
+            {#                <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">#}
+            {#                    {% include 'users/partials/_user_dropdown.html' %}#}
+            {#                </div>#}
+            {#            </nav>#}
             <div class="content-wrapper">
                 <div class="container-xxl flex-grow-1 container-p-y">
 
@@ -115,7 +116,8 @@
                 <footer class="content-footer footer bg-footer-theme">
                     <div class="container-xxl">
                         <div class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
-                            <div> © {% now "Y" %} , made with ❤️ by <a href="#" target="_blank" class="fw-medium">ই-প্রশ্ন ব্যাংক</a></div>
+                            <div> © {% now "Y" %} , made with ❤️ by <a href="#" target="_blank" class="fw-medium">ই-প্রশ্ন
+                                ব্যাংক</a></div>
                         </div>
                     </div>
                 </footer>

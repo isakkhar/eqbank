@@ -5,7 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from core.forms import SignUpForm, BANGLADESH_DIVISIONS_DISTRICTS_THANAS, QuestionPaperForm
 from .models import Profile, ClassName, Subject, Chapter, QuestionPaper
@@ -501,3 +501,27 @@ def create_question_from_modal(request):
         errors.append(str(e))
 
     return JsonResponse({'created': created, 'errors': errors})
+
+
+@login_required
+@require_POST
+def delete_paper(request, paper_id):
+    try:
+        # সঠিক মডেল (QuestionPaper) এবং সঠিক ফিল্ড (creator) ব্যবহার করুন
+        paper = get_object_or_404(QuestionPaper, id=paper_id, creator=request.user)
+        paper.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'পেপারটি সফলভাবে মুছে ফেলা হয়েছে।'
+        })
+    except QuestionPaper.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'পেপারটি খুঁজে পাওয়া যায়নি বা আপনার এটি মুছে ফেলার অনুমতি নেই।'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'একটি সমস্যা হয়েছে: {str(e)}'
+        }, status=500)

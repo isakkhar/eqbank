@@ -1,8 +1,26 @@
 {% extends 'users/base.html' %}
 {% block title %} প্রশ্ন নির্বাচন {% endblock %}
 {% block content %}
-    <h3>প্রশ্ন নির্বাচন</h3>
-
+    {#    <h3>প্রশ্ন নির্বাচন</h3>#}
+    <div class="card-body">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">আমাদের সম্পর্কে</h4>
+        </div>
+<div class="card-body">
+          <p>
+                ই-প্রশ্ন ব্যাংক-এ আপনাকে স্বাগতম! আমরা একটি অনলাইন প্ল্যাটফর্ম যা ছাত্রছাত্রীদের জন্য একটি সমৃদ্ধ প্রশ্ন
+                ভান্ডার তৈরি করার লক্ষ্যে কাজ করছি।
+                এখানে আপনি বিভিন্ন বিষয় এবং পরীক্ষার জন্য হাজার হাজার প্রশ্ন পাবেন যা আপনার প্রস্তুতিকে আরও শক্তিশালী
+                করবে।
+            </p>
+            <p>
+                আমাদের লক্ষ্য হলো শিক্ষার মান উন্নয়ন করা এবং সকলের জন্য জ্ঞানার্জন সহজলভ্য করা।
+            </p>
+</div>
+    </div>
+    <div class="mb-2 border-t border-x border-gray-400 py-2 border-dashed p-1">
+        <h5><p class="text-center">নিচের ইনপুট ফিল্ড গুলো সিলেক্ট করে সাবমিট করুন</p></h5>
+    </div>
     <form method="get" id="filterForm">
         <div class="mb-3" style="width: 250px;">
             <label for="classSelect" class="form-label fw-semibold">ক্লাস</label>
@@ -47,9 +65,12 @@
             <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
             <select name="question_type" id="questionTypeSelect" class="form-select" required>
                 <option value="">-- প্রশ্নের ধরন নির্বাচন করুন --</option>
-                <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি</option>
-                <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল</option>
-                <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত উত্তর</option>
+                <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি
+                </option>
+                <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল
+                </option>
+                <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত উত্তর
+                </option>
             </select>
         </div>
 
@@ -72,7 +93,8 @@
                 </div>
                 {% for q in questions %}
                     <div>
-                        <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}" class="question-checkbox">
+                        <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}"
+                               class="question-checkbox">
                         <label for="q{{ q.id }}">{{ q.text|default:q }}{# fallback to object __str__ #}</label>
                     </div>
                 {% empty %}
@@ -83,7 +105,8 @@
             <h4 class="mt-4">পেপারের তথ্য</h4>
             <div class="mb-3" style="width: 400px;">
                 <label for="defaultFormControlInput" class="form-label fw-semibold">প্রতিষ্ঠানের নাম</label>
-                <input type="text" name="school_name" id="defaultFormControlInput" class="form-control" placeholder="প্রতিষ্ঠানের নাম লিখুন"/>
+                <input type="text" name="school_name" id="defaultFormControlInput" class="form-control"
+                       placeholder="প্রতিষ্ঠানের নাম লিখুন"/>
             </div>
 
             <div class="mb-3" style="width: 250px;">
@@ -116,7 +139,7 @@
         });
 
         // ---- Dependent dropdowns (main filter) ----
-        const classSelect   = document.getElementById('classSelect');
+        const classSelect = document.getElementById('classSelect');
         const subjectSelect = document.getElementById('subjectSelect');
         const chapterSelect = document.getElementById('chapterSelect');
 
@@ -124,11 +147,12 @@
             subjectSelect.innerHTML = '<option value="">-- বিষয় নির্বাচন করুন --</option>';
             chapterSelect.innerHTML = '<option value="">-- অধ্যায় নির্বাচন করুন --</option>';
             if (!classId) return;
-            const res  = await fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`);
+            const res = await fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`);
             const data = await res.json();
             data.forEach(s => {
                 const opt = document.createElement('option');
-                opt.value = s.id; opt.textContent = s.name;
+                opt.value = s.id;
+                opt.textContent = s.name;
                 opt.selected = ("{{ request.GET.subject_id }}" === String(s.id));
                 subjectSelect.appendChild(opt);
             });
@@ -137,11 +161,12 @@
         async function loadChapters(subjectId) {
             chapterSelect.innerHTML = '<option value="">-- অধ্যায় নির্বাচন করুন --</option>';
             if (!subjectId) return;
-            const res  = await fetch(`{% url 'ajax_load_chapters' %}?subject_ids=${subjectId}`);
+            const res = await fetch(`{% url 'ajax_load_chapters' %}?subject_ids=${subjectId}`);
             const data = await res.json();
             data.forEach(ch => {
                 const opt = document.createElement('option');
-                opt.value = ch.id; opt.textContent = ch.name;
+                opt.value = ch.id;
+                opt.textContent = ch.name;
                 opt.selected = ("{{ request.GET.chapter_id }}" === String(ch.id));
                 chapterSelect.appendChild(opt);
             });
@@ -179,10 +204,12 @@
             populateSubjects(classId);
             modal.style.display = 'block';
         }
+
         function hideModal() {
             modal.style.display = 'none';
             modalAlert.style.display = 'none';
         }
+
         openBtn?.addEventListener('click', showModal);
         closeBtns.forEach(b => b?.addEventListener('click', hideModal));
 
@@ -194,10 +221,12 @@
             const data = await res.json();
             data.forEach(s => {
                 const opt = document.createElement('option');
-                opt.value = s.id; opt.textContent = s.name;
+                opt.value = s.id;
+                opt.textContent = s.name;
                 subjSelect.appendChild(opt);
             });
         }
+
         async function populateChaptersForSelectedSubjects() {
             const subjSelect = document.getElementById('modal_subjects');
             const selected = Array.from(subjSelect.selectedOptions).map(o => o.value).join(',');
@@ -207,10 +236,12 @@
             chapSelect.innerHTML = '';
             data.forEach(ch => {
                 const opt = document.createElement('option');
-                opt.value = ch.id; opt.textContent = ch.name;
+                opt.value = ch.id;
+                opt.textContent = ch.name;
                 chapSelect.appendChild(opt);
             });
         }
+
         document.getElementById('modal_subjects')?.addEventListener('change', populateChaptersForSelectedSubjects);
 
         // CSRF helper
@@ -241,7 +272,7 @@
             const csrftoken = getCookie('csrftoken');
             const res = await fetch("{% url 'create_question_from_modal' %}", {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
+                headers: {'X-CSRFToken': csrftoken},
                 body: formData
             });
             const data = await res.json();
