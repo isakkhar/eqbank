@@ -23,4 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', landing_page, name='landing_page'),
     path('accounts/', include('core.urls')),
+    path('chaining/', include('smart_selects.urls')),  # এই লাইনটি যোগ করুন
+
 ]

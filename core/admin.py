@@ -36,9 +36,10 @@ class ChapterAdmin(admin.ModelAdmin):
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'text', 'class_name', 'subject', 'chapter')
-    list_filter = ('class_name', 'subject', 'chapter', 'question_type')
-    search_fields = ('text',)
+    list_display = ('id', 'short_text',  'question_type_display', 'class_name', 'subject', 'chapter', 'created_at')
+    list_filter = ('question_type', 'class_name', 'subject', 'chapter')
+    # list_editable = ('question_type',)
+    search_fields = ('text', 'option_a', 'option_b', 'option_c', 'option_d')
     change_list_template = 'admin/questions_change_list.html'
 
     def get_urls(self):
@@ -138,6 +139,18 @@ class QuestionAdmin(admin.ModelAdmin):
             form=form,
         )
         return TemplateResponse(request, 'admin/questions_upload.html', context)
+
+    def short_text(self, obj):
+        return (obj.text[:80] + '...') if getattr(obj, 'text', None) and len(obj.text) > 80 else getattr(obj, 'text', '')
+    short_text.short_description = 'Question'
+
+    def question_type_display(self, obj):
+        # if model uses choices, prefer the display method, otherwise show raw value
+        get_disp = getattr(obj, 'get_question_type_display', None)
+        if callable(get_disp):
+            return get_disp()
+        return getattr(obj, 'question_type', '')
+    question_type_display.short_description = 'Question Type'
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(ClassName, ClassNameAdmin)

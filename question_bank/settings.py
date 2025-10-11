@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -27,7 +26,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core.apps.CoreConfig',
+    'smart_selects',
 ]
 
 MIDDLEWARE = [
@@ -70,21 +69,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'question_bank.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eqbank',        # ধাপ ১ এ তৈরি করা ডাটাবেসের নাম
-        'USER': 'postgres',      # ধাপ ১ এ তৈরি করা ইউজারের নাম
-        'PASSWORD': '1234',         # ধাপ ১ এ দেওয়া পাসওয়ার্ড
-        'HOST': 'localhost',          # লোকাল কম্পিউটারের জন্য 'localhost'
-        'PORT': '5432',               # PostgreSQL এর ডিফল্ট পোর্ট
+        'NAME': 'eqbank',  # ধাপ ১ এ তৈরি করা ডাটাবেসের নাম
+        'USER': 'postgres',  # ধাপ ১ এ তৈরি করা ইউজারের নাম
+        'PASSWORD': '1234',  # ধাপ ১ এ দেওয়া পাসওয়ার্ড
+        'HOST': 'localhost',  # লোকাল কম্পিউটারের জন্য 'localhost'
+        'PORT': '5432',  # PostgreSQL এর ডিফল্ট পোর্ট
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -104,7 +101,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -116,15 +112,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [ BASE_DIR / 'static' ]
-LOGIN_REDIRECT_URL = 'dashboard' # Name of the URL to redirect to after a successful login
-LOGOUT_REDIRECT_URL = 'login'    # Name of the URL to redirect to after a logout
-LOGIN_URL = 'login'              # Name of the URL to redirect to for pages that require login
+STATICFILES_DIRS = [BASE_DIR / 'static']
+LOGIN_REDIRECT_URL = 'dashboard'  # Name of the URL to redirect to after a successful login
+LOGOUT_REDIRECT_URL = 'login'  # Name of the URL to redirect to after a logout
+LOGIN_URL = 'login'  # Name of the URL to redirect to for pages that require login
 # AUTH_USER_MODEL = 'core.CustomUser'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

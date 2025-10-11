@@ -2,6 +2,8 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from smart_selects.db_fields import ChainedForeignKey, ChainedManyToManyField
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -54,9 +56,21 @@ class QuestionPaper(models.Model):
     program_name = models.CharField(max_length=255)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     class_level = models.ForeignKey(ClassName, on_delete=models.CASCADE)
-    subjects = models.ManyToManyField(Subject)
-    chapters = models.ManyToManyField(Chapter)
-    # store selected questions for the paper
+
+    # এখানে ChainedManyToManyField ব্যবহার করা হয়েছে
+    subjects = ChainedManyToManyField(
+        Subject,
+        chained_field="class_level",  # এই ফিল্ডটি class_level-এর উপর নির্ভরশীল
+        chained_model_field="class_name",  # Subject মডেলের class_name ফিল্ডের সাথে মিলবে
+        horizontal=True,
+    )
+    # অধ্যায়ের জন্যও একই কাজ করা হয়েছে
+    chapters = ChainedManyToManyField(
+        Chapter,
+        chained_field="subjects",  # এই ফিল্ডটি subjects-এর উপর নির্ভরশীল
+        chained_model_field="subject",  # Chapter মডেলের subject ফিল্ডের সাথে মিলবে
+        horizontal=True,
+    )
     questions = models.ManyToManyField('Question', blank=True)
 
     QUESTION_TYPES = [
@@ -73,29 +87,44 @@ class QuestionPaper(models.Model):
 
 
 class Question(models.Model):
-    """Represents a single question in the bank. Designed to be simple and
-    extensible for MCQ and descriptive types. Bulk uploads (CSV) will map
-    to these fields.
-    """
-    QUESTION_TYPES = [
-        ('mcq', 'বহু নির্বাচনি'),
-        ('creative', 'সৃজনশীল'),
-        ('short', 'সংক্ষিপ্ত উত্তর'),
-    ]
-
+    # ... আগের ফিল্ডগুলো ...
     text = models.TextField(verbose_name='প্রশ্ন')
-    question_type = models.CharField(max_length=50, choices=QUESTION_TYPES, default='mcq')
-    class_name = models.ForeignKey(ClassName, on_delete=models.CASCADE, related_name='questions')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='questions')
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
+    question_type = models.CharField(max_length=50, choices=[('mcq', 'বহু নির্বাচনি'), ('creative', 'সৃজনশীল'),
+                                                             ('short', 'সংক্ষিপ্ত উত্তর')], default='mcq')
 
-    # optional fields for MCQ
+    class_name = models.ForeignKey(ClassName, on_delete=models.CASCADE, related_name='questions')
+
+    # ForeignKey-এর পরিবর্তে ChainedForeignKey ব্যবহার করুন
+    subject = ChainedForeignKey(
+        Subject,
+        chained_field="class_name",  # এই মডেলের কোন ফিল্ডের উপর নির্ভরশীল (class_name)
+        chained_model_field="class_name",  # Subject মডেলের কোন ফিল্ডের সাথে মিলবে (class_name)
+        show_all=False,  # শুধুমাত্র ফিল্টার করা ফলাফল দেখাবে
+        auto_choose=True,  # যদি একটি মাত্র অপশন থাকে, তবে নিজে থেকেই সিলেক্ট হবে
+        sort=True,  # অপশনগুলো সাজিয়ে দেখাবে
+        on_delete=models.CASCADE,
+        related_name='questions'
+    )
+
+    # অধ্যায়ের জন্যও একই কাজ করুন
+    chapter = ChainedForeignKey(
+        Chapter,
+        chained_field="subject",  # এই মডেলের subject ফিল্ডের উপর নির্ভরশীল
+        chained_model_field="subject",  # Chapter মডেলের subject ফিল্ডের সাথে মিলবে
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        on_delete=models.CASCADE,
+        related_name='questions',
+        null=True, blank=True
+    )
+
+    # ... বাকি ফিল্ডগুলো ...
     option_a = models.CharField(max_length=1000, null=True, blank=True)
     option_b = models.CharField(max_length=1000, null=True, blank=True)
     option_c = models.CharField(max_length=1000, null=True, blank=True)
     option_d = models.CharField(max_length=1000, null=True, blank=True)
     correct_option = models.CharField(max_length=2, null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

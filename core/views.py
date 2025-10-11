@@ -12,7 +12,8 @@ from .models import Profile, ClassName, Subject, Chapter, QuestionPaper
 from .models import Question
 
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
+from django.db.models import Q
+
 
 
 # Create your views here.
@@ -136,39 +137,35 @@ def teacher_question_select(request):
         question_type = request.GET.get('question_type')
         question_count = request.GET.get('question_count')
 
-        # Debug: Print values to console
-        print(f"Debug - class_id: {class_id}, subject_id: {subject_id}, chapter_id: {chapter_id}, question_type: {question_type}, question_count: {question_count}")
-
+        # Dropdown population logic (unchanged)
         if class_id:
             subjects = Subject.objects.filter(class_name_id=class_id)
         if subject_id:
             chapters = Chapter.objects.filter(subject_id=subject_id)
         
-        # Show questions when class, subject, question_type and question_count are provided.
-        # Chapter is optional — if provided, filter by it, otherwise include questions without chapter filter.
-        if class_id and subject_id and question_type and question_count:
+        # --- মূল পরিবর্তন এখানে ---
+        # প্রশ্ন দেখানোর জন্য এখন ক্লাস, বিষয়, অধ্যায় এবং প্রশ্নের ধরন সবগুলোই আবশ্যক
+        if class_id and subject_id and chapter_id and question_type:
             show_questions = True
+            
+            # ফিল্টার তৈরির সময় chapter_id সরাসরি অন্তর্ভুক্ত করা হয়েছে
             q_filters = {
                 'class_name_id': class_id,
                 'subject_id': subject_id,
+                'chapter_id': chapter_id,  # chapter_id এখন আবশ্যিক ফিল্টার
                 'question_type': question_type,
             }
-            if chapter_id:
-                q_filters['chapter_id'] = chapter_id
 
             questions = Question.objects.filter(**q_filters).order_by('-created_at')
             
-            print(f"Debug - Total questions found: {questions.count()}")
-            
-            # Limit the number of questions based on user input
-            try:
-                count = int(question_count)
-                if count > 0:
-                    questions = questions[:count]
-                    print(f"Debug - Limited to {count} questions")
-            except (ValueError, TypeError):
-                questions = questions[:10]  # Default to 10 if invalid input
-                print("Debug - Using default 10 questions")
+            # ব্যবহারকারীর ইনপুট অনুযায়ী প্রশ্নের সংখ্যা সীমাবদ্ধ করা
+            if question_count:
+                try:
+                    count = int(question_count)
+                    if count > 0:
+                        questions = questions[:count]
+                except (ValueError, TypeError):
+                    questions = questions[:20]  # Default to 20 if input is invalid
 
     return render(request, 'core/teacher_select_questions.html', {
         'classes': classes,
