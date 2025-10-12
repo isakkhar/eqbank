@@ -89,8 +89,12 @@ class QuestionPaper(models.Model):
 class Question(models.Model):
     # ... আগের ফিল্ডগুলো ...
     text = models.TextField(verbose_name='প্রশ্ন')
-    question_type = models.CharField(max_length=50, choices=[('mcq', 'বহু নির্বাচনি'), ('creative', 'সৃজনশীল'),
-                                                             ('short', 'সংক্ষিপ্ত উত্তর')], default='mcq')
+    QUESTION_TYPE_CHOICES = [
+        ('mcq', 'Multiple Choice'),
+        ('short', 'Short Answer'),
+        ('creative', 'Creative'),
+    ]
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPE_CHOICES, blank=True)
 
     class_name = models.ForeignKey(ClassName, on_delete=models.CASCADE, related_name='questions')
 

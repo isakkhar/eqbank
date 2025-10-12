@@ -1,13 +1,12 @@
 {% extends 'users/base.html' %}
 {% block title %} প্রশ্ন নির্বাচন {% endblock %}
+
 {% block content %}
-    {#    <h3>প্রশ্ন নির্বাচন</h3>#}
-    <div class="card-body">
-        <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header">
             <h4 class="card-title mb-0">আমাদের সম্পর্কে</h4>
         </div>
-<div class="card-body">
-          <p>
+        <div class="card-body">
+            <p>
                 ই-প্রশ্ন ব্যাংক-এ আপনাকে স্বাগতম! আমরা একটি অনলাইন প্ল্যাটফর্ম যা ছাত্রছাত্রীদের জন্য একটি সমৃদ্ধ প্রশ্ন
                 ভান্ডার তৈরি করার লক্ষ্যে কাজ করছি।
                 এখানে আপনি বিভিন্ন বিষয় এবং পরীক্ষার জন্য হাজার হাজার প্রশ্ন পাবেন যা আপনার প্রস্তুতিকে আরও শক্তিশালী
@@ -16,272 +15,285 @@
             <p>
                 আমাদের লক্ষ্য হলো শিক্ষার মান উন্নয়ন করা এবং সকলের জন্য জ্ঞানার্জন সহজলভ্য করা।
             </p>
-</div>
+    <div class="card-body">
+        <div class="alert alert-info mt-4" role="alert">
+            <h5><p class="text-center"> সকল ফিল্ড নির্বাচন করে "ফিল্টার প্রয়োগ করুন" বাটনে ক্লিক করুন।</p></h5>
+        </div>
     </div>
-    <div class="mb-2 border-t border-x border-gray-400 py-2 border-dashed p-1">
-        <h5><p class="text-center">নিচের ইনপুট ফিল্ড গুলো সিলেক্ট করে সাবমিট করুন</p></h5>
-    </div>
+
     <form method="get" id="filterForm">
-        <div class="mb-3" style="width: 250px;">
-            <label for="classSelect" class="form-label fw-semibold">ক্লাস</label>
-            <select name="class_id" id="classSelect" class="form-select" required>
-                <option value="">-- ক্লাস নির্বাচন করুন --</option>
-                {% for c in classes %}
-                    <option value="{{ c.id }}"
-                            {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>
-                        {{ c.name }}
-                    </option>
-                {% endfor %}
-            </select>
+        <div class="row align-items-end">
+            <div class="col-md-auto mb-3">
+                <label for="classSelect" class="form-label fw-semibold">ক্লাস</label>
+                <select name="class_id" id="classSelect" class="form-select" required style="width: 200px;">
+                    <option value="">-- ক্লাস নির্বাচন করুন --</option>
+                    {% for c in classes %}
+                        <option value="{{ c.id }}" {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-auto mb-3">
+                <label for="subjectSelect" class="form-label fw-semibold">বিষয়</label>
+                <select name="subject_id" id="subjectSelect" class="form-select" required style="width: 200px;">
+                    <option value="">-- বিষয় নির্বাচন করুন --</option>
+                    {% for s in subjects %}
+                        <option value="{{ s.id }}" {% if request.GET.subject_id == s.id|stringformat:"s" %}selected{% endif %}>
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-auto mb-3">
+                <label class="form-label fw-semibold">অধ্যায়</label>
+                <button type="button" id="openChapterModalBtn" class="btn btn-outline-info w-100" data-bs-toggle="modal" data-bs-target="#chapterModal" disabled>
+                    অধ্যায় নির্বাচন করুন
+                </button>
+                <input type="hidden" name="chapter_ids" id="hiddenChapterIds" value="{{ request.GET.chapter_ids }}">
+            </div>
+             <div id="selectedChaptersDisplay" class="col-12 mb-3 fw-semibold text-info"></div>
         </div>
 
-        <div class="mb-3" style="width: 250px;">
-            <label for="subjectSelect" class="form-label fw-semibold">বিষয়</label>
-            <select name="subject_id" id="subjectSelect" class="form-select" required>
-                <option value="">-- বিষয় নির্বাচন করুন --</option>
-                {% for s in subjects %}
-                    <option value="{{ s.id }}"
-                            {% if request.GET.subject_id == s.id|stringformat:"s" %}selected{% endif %}>
-                        {{ s.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+        <div class="row align-items-end">
+             <div class="col-md-auto mb-3">
+                <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
+                <select name="question_type" id="questionTypeSelect" class="form-select" required style="width: 200px;">
+                    <option value="">-- প্রশ্নের ধরন --</option>
+                    <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি</option>
+                    <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল</option>
+                    <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত</option>
+                </select>
+            </div>
 
-        <div class="mb-3" style="width: 250px;">
-            <label for="chapterSelect" class="form-label fw-semibold">অধ্যায়</label>
-            <select name="chapter_id" id="chapterSelect" class="form-select" required>
-                <option value="">-- অধ্যায় নির্বাচন করুন --</option>
-                {% for ch in chapters %}
-                    <option value="{{ ch.id }}"
-                            {% if request.GET.chapter_id == ch.id|stringformat:"s" %}selected{% endif %}>
-                        {{ ch.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+            <div class="col-md-auto mb-3">
+                <label for="questionCountInput" class="form-label fw-semibold">কতটি প্রশ্ন দেখাবে</label>
+                <input type="number" name="question_count" id="questionCountInput" class="form-control" placeholder="যেমনঃ ২০" min="1" value="{{ request.GET.question_count|default:20 }}" style="width: 200px;">
+            </div>
 
-        <div class="mb-3" style="width: 250px;">
-            <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
-            <select name="question_type" id="questionTypeSelect" class="form-select" required>
-                <option value="">-- প্রশ্নের ধরন নির্বাচন করুন --</option>
-                <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি
-                </option>
-                <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল
-                </option>
-                <option value="short" {% if request.GET.question_type == "short" %}selected{% endif %}>সংক্ষিপ্ত উত্তর
-                </option>
-            </select>
+            <div class="col-md-auto mb-3">
+                <button type="submit" class="btn btn-info">ফিল্টার প্রয়োগ করুন</button>
+            </div>
         </div>
-
-        <div class="mb-3" style="width: 250px;">
-            <label for="questionCountInput" class="form-label fw-semibold">কতটি প্রশ্ন দেখাবে</label>
-            <input type="number" name="question_count" id="questionCountInput" class="form-control"
-                   placeholder="যেমনঃ ২০" min="1" value="{{ request.GET.question_count|default:20 }}">
-        </div>
-
-        <button type="submit" class="btn btn-info mb-4">ফিল্টার প্রয়োগ করুন</button>
-        <!-- <button type="button" class="btn btn-success mb-4 ms-2" id="openCreateModalBtn">নতুন প্রশ্ন তৈরি করুন</button> -->
     </form>
 
     {% if show_questions %}
-        <form method="post" action="{% url 'prepare_paper' %}">{% csrf_token %}
+        <hr>
+        <form method="post" action="{% url 'prepare_paper' %}">
+            {% csrf_token %}
             <div>
-                <div style="margin-bottom:8px" class="mt-4">
-                    <button type="button" id="selectAllBtn" class="btn btn-sm btn-info">সিলেক্ট করুন</button>
-                    <button type="button" id="unselectAllBtn" class="btn btn-sm btn-warning">আন সিলেক্ট করুন</button>
+                <h4 class="mt-4">প্রশ্ন তালিকা</h4>
+                <div class="my-2">
+                    <button type="button" id="selectAllBtn" class="btn btn-sm btn-info">সব সিলেক্ট করুন</button>
+                    <button type="button" id="unselectAllBtn" class="btn btn-sm btn-warning">সব আনসিলেক্ট করুন</button>
                 </div>
                 {% for q in questions %}
-                    <div>
-                        <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}"
-                               class="question-checkbox">
-                        <label for="q{{ q.id }}">{{ q.text|default:q }}{# fallback to object __str__ #}</label>
+                    <div class="card mb-2 p-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <input type="checkbox" name="question_ids" value="{{ q.id }}" id="q{{ q.id }}" class="form-check-input question-checkbox me-2">
+                            <label for="q{{ q.id }}" class="form-check-label fw-semibold">{{ q.text }}</label>
+                        </div>
+                        <div class="text-end small text-muted">ID: {{ q.id }}</div>
                     </div>
-                {% empty %}
-                    <p>কোন প্রশ্ন পাওয়া যায়নি।</p>
-                {% endfor %}
+
+                    {# --- যদি MCQ হয়, অপশন দেখান --- #}
+                    {% comment %} Replace question_type checks with presence of option fields {% endcomment %}
+                    {% if q.option_a or q.option_b or q.option_c or q.option_d %}
+                        <ul class="list-group list-group-flush mt-2">
+                            {% if q.option_a %}<li class="list-group-item">A. {{ q.option_a }}</li>{% endif %}
+                            {% if q.option_b %}<li class="list-group-item">B. {{ q.option_b }}</li>{% endif %}
+                            {% if q.option_c %}<li class="list-group-item">C. {{ q.option_c }}</li>{% endif %}
+                            {% if q.option_d %}<li class="list-group-item">D. {{ q.option_d }}</li>{% endif %}
+                        </ul>
+                    {% else %}
+                        {# non-mcq: যদি answer/text field থাকে #}
+                        {% if q.answer %}
+                            <div class="mt-2"><strong>Answer:</strong> {{ q.answer }}</div>
+                        {% endif %}
+                    {% endif %}
+
+                    {# --- Correct option / answer (admin-এ যে ফিল্ড আছে তা দেখান) --- #}
+                    {% if q.correct_option %}
+                        <div class="mt-2"><span class="badge bg-success">Correct: {{ q.correct_option }}</span></div>
+                    {% elif q.correct_answer %}
+                        <div class="mt-2"><span class="badge bg-success">Correct: {{ q.correct_answer }}</span></div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p class="text-danger mt-3">এই ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।</p>
+            {% endfor %}
             </div>
 
+            {% if questions %}
+            <hr>
             <h4 class="mt-4">পেপারের তথ্য</h4>
-            <div class="mb-3" style="width: 400px;">
-                <label for="defaultFormControlInput" class="form-label fw-semibold">প্রতিষ্ঠানের নাম</label>
-                <input type="text" name="school_name" id="defaultFormControlInput" class="form-control"
-                       placeholder="প্রতিষ্ঠানের নাম লিখুন"/>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="schoolNameInput" class="form-label fw-semibold">প্রতিষ্ঠানের নাম</label>
+                    <input type="text" name="school_name" id="schoolNameInput" class="form-control" placeholder="প্রতিষ্ঠানের নাম লিখুন" required/>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-semibold">সময় (মিনিট)</label>
+                    <input type="number" name="duration" class="form-control" placeholder="যেমনঃ 60" required/>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-semibold">মোট নম্বর</label>
+                    <input type="number" name="total_marks" class="form-control" placeholder="যেমনঃ 100" required/>
+                </div>
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" name="include_omr" id="omrSwitch">
+                <label class="form-check-label" for="omrSwitch">OMR দেখান</label>
             </div>
 
-            <div class="mb-3" style="width: 250px;">
-                <label class="form-label fw-semibold">সময় (মিনিট)</label>
-                <input type="number" name="duration" class="form-control" placeholder="যেমনঃ 60"/>
-            </div>
-
-            <div class="mb-3" style="width: 250px;">
-                <label class="form-label fw-semibold">মোট নম্বর</label>
-                <input type="number" name="total_marks" class="form-control" placeholder="যেমনঃ 100"/>
-            </div>
-
-            <label><input type="checkbox" name="include_omr"/> OMR দেখান</label>
-            <br>
-            <button type="submit" class="btn btn-info" style="margin-top: 30px;">প্রশ্ন প্রস্তুত করুন</button>
+            <button type="submit" class="btn btn-primary mt-3">প্রশ্ন প্রস্তুত করুন</button>
+            {% endif %}
         </form>
-    {% else %}
-        <div class="alert alert-info mt-4" role="alert">
-            সকল ফিল্ড (ক্লাস, বিষয়, অধ্যায়, প্রশ্নের ধরন) নির্বাচন করুন এবং "ফিল্টার প্রয়োগ করুন" বাটনে ক্লিক করুন।
-        </div>
     {% endif %}
 
-    <script>
-        // Select All / Unselect All handlers
-        document.getElementById('selectAllBtn')?.addEventListener('click', function () {
-            document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = true);
-        });
-        document.getElementById('unselectAllBtn')?.addEventListener('click', function () {
-            document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = false);
-        });
+<div class="modal fade" id="chapterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">অধ্যায় নির্বাচন করুন</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <button type="button" class="btn btn-sm btn-info" id="selectAllChapters">সব সিলেক্ট করুন</button>
+                    <button type="button" class="btn btn-sm btn-warning" id="unselectAllChapters">সব আনসিলেক্ট করুন</button>
+                </div>
+                <div id="chapterList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">বন্ধ করুন</button>
+                <button type="button" class="btn btn-info" id="saveChaptersBtn" data-bs-dismiss="modal">সেভ করুন</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // ---- Dependent dropdowns (main filter) ----
-        const classSelect = document.getElementById('classSelect');
-        const subjectSelect = document.getElementById('subjectSelect');
-        const chapterSelect = document.getElementById('chapterSelect');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const classSelect = document.getElementById('classSelect');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const openChapterModalBtn = document.getElementById('openChapterModalBtn');
 
-        async function loadSubjects(classId) {
-            subjectSelect.innerHTML = '<option value="">-- বিষয় নির্বাচন করুন --</option>';
-            chapterSelect.innerHTML = '<option value="">-- অধ্যায় নির্বাচন করুন --</option>';
-            if (!classId) return;
-            const res = await fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`);
-            const data = await res.json();
-            data.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.textContent = s.name;
-                opt.selected = ("{{ request.GET.subject_id }}" === String(s.id));
-                subjectSelect.appendChild(opt);
-            });
-        }
+    const chapterListDiv = document.getElementById('chapterList');
+    const saveChaptersBtn = document.getElementById('saveChaptersBtn');
+    const hiddenChapterIdsInput = document.getElementById('hiddenChapterIds');
+    const selectedChaptersDisplay = document.getElementById('selectedChaptersDisplay');
+    const selectAllChaptersBtn = document.getElementById('selectAllChapters');
+    const unselectAllChaptersBtn = document.getElementById('unselectAllChapters');
 
-        async function loadChapters(subjectId) {
-            chapterSelect.innerHTML = '<option value="">-- অধ্যায় নির্বাচন করুন --</option>';
-            if (!subjectId) return;
-            const res = await fetch(`{% url 'ajax_load_chapters' %}?subject_ids=${subjectId}`);
-            const data = await res.json();
-            data.forEach(ch => {
-                const opt = document.createElement('option');
-                opt.value = ch.id;
-                opt.textContent = ch.name;
-                opt.selected = ("{{ request.GET.chapter_id }}" === String(ch.id));
-                chapterSelect.appendChild(opt);
-            });
-        }
+    // --- ক্লাস ও বিষয় এর ড্রপডাউন ---
+    async function loadSubjects(classId, selectedSubjectId = null) {
+        subjectSelect.innerHTML = '<option value="">-- বিষয় নির্বাচন করুন --</option>';
+        openChapterModalBtn.disabled = true;
+        if (!classId) return;
 
-        classSelect?.addEventListener('change', () => loadSubjects(classSelect.value));
-        subjectSelect?.addEventListener('change', () => loadChapters(subjectSelect.value));
+        const response = await fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`);
+        const subjects = await response.json();
 
-        // Optional: যদি ভিউ থেকে subjects/chapters না আসে, প্রথম লোডে AJAX দিয়ে ভরে দিন
-        document.addEventListener('DOMContentLoaded', () => {
-            const hasSubjects = subjectSelect.querySelectorAll('option').length > 1;
-            const hasChapters = chapterSelect.querySelectorAll('option').length > 1;
-
-            if (!hasSubjects && classSelect.value) {
-                loadSubjects(classSelect.value).then(() => {
-                    if ("{{ request.GET.subject_id }}") {
-                        loadChapters("{{ request.GET.subject_id }}");
-                    }
-                });
-            } else if (!hasChapters && subjectSelect.value) {
-                loadChapters(subjectSelect.value);
+        subjects.forEach(s => {
+            const option = new Option(s.name, s.id);
+            if (selectedSubjectId && selectedSubjectId == s.id) {
+                option.selected = true;
             }
+            subjectSelect.appendChild(option);
         });
 
-        // ---- Modal handling (unchanged) ----
-        const openBtn = document.getElementById('openCreateModalBtn');
-        const modal = document.getElementById('createQuestionModal');
-        const closeBtns = [document.getElementById('closeModalBtn'), document.getElementById('closeModalBtn2')];
-        const modalSubmit = document.getElementById('modalSubmitBtn');
-        const modalAlert = document.getElementById('modal_alert');
+        if (selectedSubjectId) {
+            subjectSelect.dispatchEvent(new Event('change'));
+        }
+    }
 
-        function showModal() {
-            const classId = document.getElementById('classSelect')?.value || '';
-            document.getElementById('modal_class_id').value = classId;
-            populateSubjects(classId);
-            modal.style.display = 'block';
+    classSelect.addEventListener('change', () => {
+        loadSubjects(classSelect.value);
+        hiddenChapterIdsInput.value = '';
+        selectedChaptersDisplay.textContent = '';
+    });
+
+    // --- Modal-এর জন্য অধ্যায় লোড করা ---
+    async function loadChaptersIntoModal(subjectId) {
+        chapterListDiv.innerHTML = 'লোড হচ্ছে...';
+        if (!subjectId) {
+            chapterListDiv.innerHTML = '<p class="text-muted">একটি বিষয় নির্বাচন করুন।</p>';
+            openChapterModalBtn.disabled = true;
+            return;
         }
 
-        function hideModal() {
-            modal.style.display = 'none';
-            modalAlert.style.display = 'none';
-        }
+        openChapterModalBtn.disabled = false;
+        // ✅✅✅ মূল পরিবর্তন: 'subject_ids' এর পরিবর্তে 'subject_id' ব্যবহার করা হচ্ছে ✅✅✅
+        const response = await fetch(`{% url 'ajax_load_chapters' %}?subject_id=${subjectId}`);
+        const chapters = await response.json();
 
-        openBtn?.addEventListener('click', showModal);
-        closeBtns.forEach(b => b?.addEventListener('click', hideModal));
+        chapterListDiv.innerHTML = '';
+        const preSelectedChapterIds = hiddenChapterIdsInput.value.split(',').filter(Boolean);
 
-        async function populateSubjects(classId) {
-            const subjSelect = document.getElementById('modal_subjects');
-            subjSelect.innerHTML = '';
-            if (!classId) return;
-            const res = await fetch(`{% url 'ajax_load_subjects' %}?class_id=${classId}`);
-            const data = await res.json();
-            data.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.textContent = s.name;
-                subjSelect.appendChild(opt);
+        if (chapters.length > 0) {
+            chapters.forEach(ch => {
+                const isChecked = preSelectedChapterIds.includes(String(ch.id));
+                const checkboxHtml = `
+                    <div class="form-check">
+                        <input class="form-check-input chapter-checkbox" type="checkbox" value="${ch.id}" id="chapter-${ch.id}" ${isChecked ? 'checked' : ''}>
+                        <label class="form-check-label" for="chapter-${ch.id}">${ch.name}</label>
+                    </div>`;
+                chapterListDiv.insertAdjacentHTML('beforeend', checkboxHtml);
             });
+        } else {
+            chapterListDiv.innerHTML = '<p class="text-danger">এই বিষয়ের জন্য কোনো অধ্যায় পাওয়া যায়নি।</p>';
         }
+    }
 
-        async function populateChaptersForSelectedSubjects() {
-            const subjSelect = document.getElementById('modal_subjects');
-            const selected = Array.from(subjSelect.selectedOptions).map(o => o.value).join(',');
-            const res = await fetch(`{% url 'ajax_load_chapters' %}?subject_ids=${selected}`);
-            const data = await res.json();
-            const chapSelect = document.getElementById('modal_chapters');
-            chapSelect.innerHTML = '';
-            data.forEach(ch => {
-                const opt = document.createElement('option');
-                opt.value = ch.id;
-                opt.textContent = ch.name;
-                chapSelect.appendChild(opt);
-            });
+    subjectSelect.addEventListener('change', () => {
+        hiddenChapterIdsInput.value = '';
+        selectedChaptersDisplay.textContent = '';
+        loadChaptersIntoModal(subjectSelect.value);
+    });
+
+    // --- Modal-এর বাটনগুলোর কাজ ---
+    saveChaptersBtn.addEventListener('click', () => {
+        const selectedCheckboxes = chapterListDiv.querySelectorAll('.chapter-checkbox:checked');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+        const selectedNames = Array.from(selectedCheckboxes).map(cb => cb.nextElementSibling.textContent);
+
+        hiddenChapterIdsInput.value = selectedIds.join(',');
+        selectedChaptersDisplay.textContent = selectedNames.length > 0 ? `নির্বাচিত অধ্যায়: ${selectedNames.join(', ')}` : '';
+    });
+
+    selectAllChaptersBtn.addEventListener('click', () => chapterListDiv.querySelectorAll('.chapter-checkbox').forEach(cb => cb.checked = true));
+    unselectAllChaptersBtn.addEventListener('click', () => chapterListDiv.querySelectorAll('.chapter-checkbox').forEach(cb => cb.checked = false));
+
+    // --- পেইজ লোড হওয়ার সময় আগের ডেটা ধরে রাখা ---
+    function initializeForm() {
+        const initialClassId = classSelect.value;
+        const initialSubjectId = "{{ request.GET.subject_id }}";
+
+        if (initialClassId) {
+            loadSubjects(initialClassId, initialSubjectId);
         }
+    }
 
-        document.getElementById('modal_subjects')?.addEventListener('change', populateChaptersForSelectedSubjects);
+    initializeForm();
 
-        // CSRF helper
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
+    // --- ADD: Select / Unselect all for question list ---
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const unselectAllBtn = document.getElementById('unselectAllBtn');
 
-        modalSubmit?.addEventListener('click', async function () {
-            const form = document.getElementById('createQuestionForm');
-            const formData = new FormData(form);
-            const subjVals = Array.from(document.getElementById('modal_subjects').selectedOptions).map(o => o.value);
-            subjVals.forEach(v => formData.append('subjects', v));
-            const chapVals = Array.from(document.getElementById('modal_chapters').selectedOptions).map(o => o.value);
-            chapVals.forEach(v => formData.append('chapters', v));
-            formData.append('class_id', document.getElementById('modal_class_id').value || '');
+    function setAllQuestionCheckboxes(checked) {
+        document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = checked);
+    }
 
-            const csrftoken = getCookie('csrftoken');
-            const res = await fetch("{% url 'create_question_from_modal' %}", {
-                method: 'POST',
-                headers: {'X-CSRFToken': csrftoken},
-                body: formData
-            });
-            const data = await res.json();
-            if (res.ok) {
-                location.reload();
-            } else {
-                modalAlert.style.display = 'block';
-                modalAlert.textContent = data.error || (data.errors ? data.errors.join('; ') : 'Unknown error');
-            }
-        });
-    </script>
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', () => setAllQuestionCheckboxes(true));
+    }
+    if (unselectAllBtn) {
+        unselectAllBtn.addEventListener('click', () => setAllQuestionCheckboxes(false));
+    }
+});
+</script>
 {% endblock %}

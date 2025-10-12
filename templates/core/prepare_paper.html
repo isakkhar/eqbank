@@ -1,357 +1,218 @@
 {% extends 'users/base.html' %}
-{% block title %} প্রস্তুতকৃত প্রশ্নপত্র {% endblock %}
+{% block title %}প্রশ্ন প্রস্তুত করুন{% endblock %}
+
 {% block content %}
-    <div id="paper-container" class="paper-a4">
-        <div class="exam-header text-center">
-            <h1 class="exam-title">{{ school_name|default:"School Name" }}</h1>
-            {% if paper and paper.class_level %}
-                <div class="exam-sub">{{ paper.class_level.name }}</div>
-            {% else %}
-                <div style="font-size:1.1em; margin-top:4px">&nbsp;</div>
-            {% endif %}
+<style>
+    /* improved masthead + paper styling */
+    .paper {
+        max-width: 980px;
+        margin: 20px auto;
+        padding: 22px 28px;
+        background: #fff;
+        color: #111;
+        box-shadow: 0 6px 18px rgba(20,20,20,0.06);
+        border-radius: 6px;
+        font-family: 'Hind Siliguri', sans-serif !important;
+    }
+    .masthead {
+        text-align: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .school-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        margin-bottom: 6px;
+    }
+    .paper-subtitle {
+        font-size: 16px;
+        color: #444;
+        margin-bottom: 6px;
+    }
+    .meta-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+    }
+    .meta-badge {
+        background: #f5f7fa;
+        color: #222;
+        padding: 6px 10px;
+        border-radius: 14px;
+        font-size: 13px;
+        border: 1px solid #eceff3;
+    }
+    .chapters-list { margin-top:8px; color:#333; font-size:13px; }
+    .chapters-list .chapter-name { margin-right:8px; display:inline-block; padding:4px 8px; background:#fff; border:1px solid #f0f0f0; border-radius:10px; font-size:13px; color:#333; }
 
-            {% if questions %}
-                <div class="exam-sub" style="margin-top:6px;">বিষয়: {{ questions.0.subject.name }}</div>
-                {% if questions.0.chapter %}
-                    <div class="exam-sub" style="margin-top:2px; font-size:14px;">
-                        অধ্যায়: {{ questions.0.chapter.name }}</div>
-                {% endif %}
-            {% endif %}
+    /* questions layout tweaks */
+    .q-columns { display:flex; gap:28px; margin-top:12px; }
+    .q-col { flex:1; }
+    .q-text { font-weight:400; font-size:15px; margin-bottom:6px; }
+    .question { margin-bottom:14px; }
 
-            {% if paper %}
-                <!-- <div class="exam-sub exam-program">{{ paper.program_name }}</div> -->
-            {% else %}
-                <div style="margin-top:10px; font-weight:700">&nbsp;</div>
-            {% endif %}
-            <div class="meta-row">
-                <div class="meta-left">সময়— {{ duration }} মিনিট</div>
-                <div class="meta-right">পূর্ণমান— {{ total_marks }}</div>
-            </div>
+    @media (max-width:900px) {
+        .q-columns { flex-direction:column; gap:10px; }
+        .school-title { font-size:22px; }
+    }
+
+    /* OMR */
+    .omr-wrap { margin-top:18px; }
+    .omr-row { display:flex; align-items:center; gap:12px; padding:6px 0; border-bottom:1px solid #f1f1f1; }
+    .omr-bubble { width:22px; height:22px; border-radius:50%; border:2px solid #333; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:transparent; }
+
+    /* print */
+    @media print {
+        body { background: #fff; }
+        .btn { display:none !important; }
+        .paper { box-shadow:none; margin:0; max-width:100%; }
+    }
+
+    /* replace/extend your existing styles with these for option layout */
+    .options { list-style: none; padding: 0; margin: 8px 0 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+    .option-item { display: flex; align-items: center; gap: 10px; font-weight: 400 !important; font-size: 14px; color: #111; }
+    .opt-circle {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid #222;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 400;
+        font-size: 13px;
+        line-height: 1;
+        background: #fff;
+    }
+    .option-text { display: inline-block; font-size: 14px; font-weight: 400 !important; }
+
+    /* responsive: slightly smaller on small screens */
+    @media (max-width: 680px) {
+        .options { grid-template-columns: 1fr; }
+        .option-item { font-size: 13px; gap: 8px; }
+        .opt-circle { width: 24px; height: 24px; font-size: 12px; }
+        .option-text { font-size: 13px; }
+    }
+</style>
+
+<div class="paper">
+    <div class="masthead">
+        <div class="school-title">{{ school_name }}</div>
+        <div class="paper-subtitle">
+            {% if questions.0.class_name %}{{ questions.0.class_name.name }}{% endif %}
+            {% if questions.0.subject %} — {{ questions.0.subject.name }}{% endif %}
         </div>
 
-        <!-- OMR top block: student info, toggle and 4-column OMR grid -->
-        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                নাম: <span class="student-name">____________________</span>
-                &nbsp;&nbsp; রোল: <span class="student-roll">____________________</span>
-            </div>
-
+        <div class="meta-row">
+            <div class="meta-badge">সময়: {{ duration_bn }} মিনিট</div>
+            <div class="meta-badge">পূর্ণমান: {{ total_marks_bn }}</div>
+            <!-- <div class="meta-badge">প্রশ্ন সংখ্যা: {{ questions_with_index|length }}</div> -->
         </div>
 
-
-        <div class="instruction text-center" style="margin-top:14px">প্রশ্নপত্রে কোনো প্রকার দাগ/চিহ্ন দেয়া যাবে না।
-        </div>
-
-        <div class="questions" style="column-count: 2; column-gap: 50px; column-rule: 2px solid #ccc;">
-            <ol start="1" style="padding-left: 0;">
+        {% if questions %}
+            <div class="chapters-list">
+                {% comment %} print unique chapters in order of appearance {% endcomment %}
                 {% for q in questions %}
-                    <li class="question-item" style="margin-bottom: 20px; break-inside: avoid;">
-                        <!-- প্রশ্ন নম্বর এবং টেক্সট -->
-                        <div style="display: flex; align-items: flex-start; gap: 4px;">
-                            <div class="qnum" style="font-weight:600;">{{ forloop.counter }}.</div>
-                            <div class="qtext" style="flex:1;">{{ q.text|linebreaksbr }}</div>
-                        </div>
+                    {% if q.chapter %}
+                        {% ifchanged q.chapter.id %}
+                            <span class="chapter-name">{{ q.chapter.name }}</span>
+                        {% endifchanged %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+            <div class="instructions">প্রশ্নপত্রে কোনো প্রকার দাগ/চিহ্ন দেওয়া যাবেনা।</div>
+    </div>
 
-                        <!-- MCQ অপশন -->
-                        {% if q.question_type == 'mcq' %}
-                            <div class="options" style="margin-top: 6px; padding-left: 20px;">
-                                <div style="display: flex; justify-content: space-between; max-width: 400px; margin-bottom: 2px;">
-                                    <div style="width: 48%; font-size: 14px;"><span
-                                            style="font-weight:600;">(ক)</span> {{ q.option_a }}</div>
-                                    <div style="width: 48%; font-size: 14px;"><span
-                                            style="font-weight:600;">(খ)</span> {{ q.option_b }}</div>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; max-width: 400px; margin-bottom: 2px;">
-                                    <div style="width: 48%; font-size: 14px;"><span
-                                            style="font-weight:600;">(গ)</span> {{ q.option_c }}</div>
-                                    <div style="width: 48%; font-size: 14px;"><span
-                                            style="font-weight:600;">(ঘ)</span> {{ q.option_d }}</div>
-                                </div>
-                            </div>
+    <!-- <div class="info-row">
+        <div>সময় — {{ duration|default:"৪৫" }} মিনিট</div>
+        <div>পূর্ণমান — {{ total_marks|default:"৩২" }}</div>
+    </div> -->
+
+
+    <div class="q-columns" id="questionsColumns">
+        <div class="q-col left">
+            {% for item in questions_with_index %}
+                {% if not item.index|divisibleby:"2" %}
+                    <div class="question">
+                        <div class="q-text">{{ item.bn_index }}. {{ item.q.text|safe }}</div>
+                        {% if item.q.option_a or item.q.option_b or item.q.option_c or item.q.option_d %}
+                            <ul class="options">
+                                {% if item.q.option_a %}<li class="option-item"><span class="opt-circle">ক</span><span class="option-text">{{ item.q.option_a }}</span></li>{% endif %}
+                                {% if item.q.option_b %}<li class="option-item"><span class="opt-circle">খ</span><span class="option-text">{{ item.q.option_b }}</span></li>{% endif %}
+                                {% if item.q.option_c %}<li class="option-item"><span class="opt-circle">গ</span><span class="option-text">{{ item.q.option_c }}</span></li>{% endif %}
+                                {% if item.q.option_d %}<li class="option-item"><span class="opt-circle">ঘ</span><span class="option-text">{{ item.q.option_d }}</span></li>{% endif %}
+                            </ul>
+                        {% else %}
+                            <div class="text-muted">উত্তর এখানে দেখানো হচ্ছে না।</div>
                         {% endif %}
-
-                        <!-- উত্তর
-        {% if show_answers and q.question_type == 'mcq' %}
-          <div class="answer-key" style="margin-top:4px; color:#0a58ca; font-weight:700; padding-left:20px; font-size: 14px;">
-            {% if q.correct_option == 'a' or q.correct_option == 'ক' %}
-              ✅ (ক) {{ q.option_a }}
-            {% elif q.correct_option == 'b' or q.correct_option == 'খ' %}
-              ✅ (খ) {{ q.option_b }}
-            {% elif q.correct_option == 'c' or q.correct_option == 'গ' %}
-              ✅ (গ) {{ q.option_c }}
-            {% elif q.correct_option == 'd' or q.correct_option == 'ঘ' %}
-              ✅ (ঘ) {{ q.option_d }}
-            {% else %}
-              -
-            {% endif %}
-          </div>
-        {% endif %} -->
-                    </li>
-                {% endfor %}
-            </ol>
-        </div>
-        <div class="paper-omr mt-2">
-            <div class="omr-grid grid grid-cols-4 gap-2 px-1">
-                {% for q in questions %}
-                    <div class="omr-cell flex items-center text-[6px]"
-                         data-answer="{{ q.correct_option|default:''|lower }}">
-                        <!-- নাম্বার বামপাশে -->
-                        <div class="omr-qnum w-5 text-left">{{ forloop.counter }}</div>
-                        <!-- bubbles ডানপাশে -->
-                        <div class="omr-bubbles flex gap-1 ml-1">
-                            <span class="bubble w-3 h-3 flex items-center justify-center text-[8px] cursor-pointer">ক</span>
-                            <span class="bubble w-3 h-3 flex items-center justify-center text-[8px] cursor-pointer">খ</span>
-                            <span class="bubble w-3 h-3 flex items-center justify-center text-[8px] cursor-pointer">গ</span>
-                            <span class="bubble w-3 h-3 flex items-center justify-center text-[8px] cursor-pointer">ঘ</span>
-                        </div>
                     </div>
-                {% endfor %}
-            </div>
+                {% endif %}
+            {% endfor %}
         </div>
-        <!-- Print button -->
-        <div class="print-row mt-4">
-            <button onclick="window.print();" class="btn btn-info">Print</button>
+
+        <div class="q-col right">
+            {% for item in questions_with_index %}
+                {% if item.index|divisibleby:"2" %}
+                    <div class="question">
+                        <div class="q-text">{{ item.bn_index }}. {{ item.q.text|safe }}</div>
+                        {% if item.q.option_a or item.q.option_b or item.q.option_c or item.q.option_d %}
+                            <ul class="options">
+                                {% if item.q.option_a %}<li class="option-item"><span class="opt-circle">ক</span><span class="option-text">{{ item.q.option_a }}</span></li>{% endif %}
+                                {% if item.q.option_b %}<li class="option-item"><span class="opt-circle">খ</span><span class="option-text">{{ item.q.option_b }}</span></li>{% endif %}
+                                {% if item.q.option_c %}<li class="option-item"><span class="opt-circle">গ</span><span class="option-text">{{ item.q.option_c }}</span></li>{% endif %}
+                                {% if item.q.option_d %}<li class="option-item"><span class="opt-circle">ঘ</span><span class="option-text">{{ item.q.option_d }}</span></li>{% endif %}
+                            </ul>
+                        {% else %}
+                            <div class="text-muted">উত্তর এখানে দেখানো হচ্ছে না।</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 
-    <style>
-        /* A4 print container */
-        :root {
-            --font-sans: "DejaVu Sans", "Noto Sans Bengali", Arial, sans-serif
-        }
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <button id="omrToggleBtn" class="btn btn-outline-primary btn-sm">
+                {% if include_omr %}OMR দেখানো আছে{% else %}OMR দেখান{% endif %}
+            </button>
+        </div>
+        <div><a href="#" onclick="window.print(); return false;" class="btn btn-secondary btn-sm">প্রিন্ট</a></div>
+    </div>
 
-        body {
-            font-family: var(--font-sans);
-            color: #111
-        }
+    <div id="omrSheet" class="omr-wrap" style="display: {% if include_omr %}block{% else %}none{% endif %};">
+        <div class="card p-2">
+            {% for item in questions_with_index %}
+                <div class="omr-row">
+                    <div style="width:36px;">{{ item.bn_index }}</div>
+                    <div class="omr-bubbles" aria-hidden="true">
+                        <div class="omr-bubble">A</div>
+                        <div class="omr-bubble">B</div>
+                        <div class="omr-bubble">C</div>
+                        <div class="omr-bubble">D</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
-        .paper-a4 {
-            background: white;
-            padding: 16mm;
-            margin: 8mm auto;
-            width: 210mm;
-            box-shadow: none
-        }
-
-        .exam-title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700
-        }
-
-        .exam-sub {
-            font-size: 15px;
-            margin-top: 4px
-        }
-
-        .exam-program {
-            margin-top: 6px;
-            font-weight: 700
-        }
-
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-weight: 600
-        }
-
-        .instruction {
-            text-align: center;
-            margin: 10px 0;
-            font-weight: 600
-        }
-
-        /* Two column questions: align number left and text flows properly */
-        .questions.two-column ol {
-            counter-reset: item;
-            list-style: none;
-            padding-left: 0;
-            column-count: 2;
-            column-gap: 30px
-        }
-
-        .questions.two-column li {
-            display: table;
-            width: 100%;
-            margin-bottom: 10px
-        }
-
-        .question-item {
-            display: table-row
-        }
-
-        .qnum {
-            display: table-cell;
-            width: 36px;
-            padding-right: 6px;
-            vertical-align: top;
-            font-weight: 700
-        }
-
-        .qtext {
-            display: table-cell
-        }
-
-        /* Force single-line question display with ellipsis; options will wrap to next line */
-        .single-line .qtext {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis
-        }
-
-        .single-line .options {
-            display: block;
-            margin-top: 4px
-        }
-
-        .options.inline {
-            margin-top: 6px;
-            color: #222;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap
-        }
-
-        .options .opt {
-            background: transparent;
-            padding: 0 4px
-        }
-
-        .options.two-col {
-            display: flex;
-            gap: 12px;
-            margin-top: 6px
-        }
-
-        .options.two-col .col {
-            width: 50%
-        }
-
-        .options.two-col .opt {
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-            margin-bottom: 6px
-        }
-
-        .options.two-col .opt-label {
-            min-width: 28px;
-            font-weight: 700
-        }
-
-        /* OMR styles: grid with two cells per row like sample */
-        .paper-omr {
-            border: 3px solid #000;
-            padding: 8px;
-            margin-top: 14px
-        }
-
-        /* 4-column OMR grid */
-        .omr-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px
-        }
-
-        .omr-cell {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 6px
-        }
-
-        .omr-qnum {
-            font-weight: 700;
-            margin-bottom: 4px
-        }
-
-        .omr-bubbles {
-            display: flex;
-            gap: 8px
-        }
-
-        .bubble {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid #111;
-            text-align: center;
-            line-height: 26px;
-            font-weight: 600
-        }
-
-        .bubble.filled {
-            background: #111;
-            color: #fff;
-            border-color: #111
-        }
-
-        /* small row-break placeholder for spacing (keeps cells grouped) */
-        .omr-row-break {
-            flex-basis: 100%;
-            height: 0
-        }
-
-        /* Print rules */
-        @media print {
-            body * {
-                visibility: hidden
-            }
-
-            #paper-container, #paper-container * {
-                visibility: visible
-            }
-
-            #paper-container {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 210mm;
-                height: 297mm;
-                padding: 12mm
-            }
-
-            .btn {
-                display: none
-            }
-        }
-    </style>
-    <script>
-        // Toggle student info and fill OMR bubbles to show correct answers
-        document.addEventListener('DOMContentLoaded', function () {
-            const toggle = document.getElementById('toggleStudentOMR');
-            const nameEl = document.querySelector('.student-name');
-            const rollEl = document.querySelector('.student-roll');
-
-            function setFilled(show) {
-                document.querySelectorAll('.omr-cell').forEach(cell => {
-                    const ans = cell.getAttribute('data-answer') || '';
-                    cell.querySelectorAll('.bubble').forEach(b => {
-                        if (show && ans && b.getAttribute('data-option') === ans) {
-                            b.classList.add('filled');
-                        } else {
-                            b.classList.remove('filled');
-                        }
-                    })
-                });
-                // reveal student fields as blanks or hide
-                if (show) {
-                    if (nameEl) nameEl.textContent = 'Name Here';
-                    if (rollEl) rollEl.textContent = 'Roll123';
-                } else {
-                    if (nameEl) nameEl.textContent = '____________________';
-                    if (rollEl) rollEl.textContent = '____________________';
-                }
-            }
-
-            toggle?.addEventListener('change', function () {
-                setFilled(toggle.checked)
-            });
-            // default: not filled
-            setFilled(false);
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const omrToggleBtn = document.getElementById('omrToggleBtn');
+    const omrSheet = document.getElementById('omrSheet');
+    if (omrToggleBtn && omrSheet) {
+        omrToggleBtn.addEventListener('click', () => {
+            const shown = omrSheet.style.display === 'block';
+            omrSheet.style.display = shown ? 'none' : 'block';
+            omrToggleBtn.textContent = shown ? 'OMR দেখান' : 'OMR দেখানো আছে';
         });
-    </script>
+    }
+});
+</script>
 {% endblock %}

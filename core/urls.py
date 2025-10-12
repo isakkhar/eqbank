@@ -22,7 +22,7 @@ urlpatterns = [
     path('ajax/load-chapters/', views.ajax_load_chapters, name='ajax_load_chapters'),
     # Teacher selection and paper preparation
     path('teacher/select-questions/', views.teacher_question_select, name='teacher_select_questions'),
-    path('teacher/prepare-paper/', views.prepare_paper_view, name='prepare_paper'),
+    path('teacher/prepare-paper/', views.prepare_paper, name='prepare_paper'),
     path('teacher/create-question-modal/', views.create_question_from_modal, name='create_question_from_modal'),
     
     # My Papers URLs

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -549,7 +550,7 @@
         <div class="container">
             <h2>আজই শুরু করুন আপনার যাত্রা</h2>
             <p>হাজারো শিক্ষক ইতিমধ্যে ব্যবহার করছেন ইপ্রশ্নব্যাংক। আপনিও যুক্ত হন।</p>
-            <a href="#" class="btn btn-primary">বিনামূল্যে ট্রাই করুন</a>
+            <a href="{% url 'login' %}" class="btn btn-info">বিনামূল্যে ট্রাই করুন</a>
         </div>
     </section>
 
