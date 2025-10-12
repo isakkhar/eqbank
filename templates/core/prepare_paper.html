@@ -50,26 +50,119 @@
     .chapters-list .chapter-name { margin-right:8px; display:inline-block; padding:4px 8px; background:#fff; border:1px solid #f0f0f0; border-radius:10px; font-size:13px; color:#333; }
 
     /* questions layout tweaks */
-    .q-columns { display:flex; gap:28px; margin-top:12px; }
+    .q-columns { display:flex; gap:28px; margin-top:12px; position:relative; }
+    /* vertical divider between left and right columns */
+    .q-columns::before{
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: linear-gradient(#d0d0d0 0%, #b8b8b8 50%, #d0d0d0 100%);
+        transform: translateX(-50%);
+        border-radius: 1px;
+        pointer-events: none;
+    }
     .q-col { flex:1; }
     .q-text { font-weight:400; font-size:15px; margin-bottom:6px; }
     .question { margin-bottom:14px; }
 
     @media (max-width:900px) {
         .q-columns { flex-direction:column; gap:10px; }
+        .q-columns::before { display:none; } /* hide divider on small screens */
         .school-title { font-size:22px; }
     }
+    @media print {
+        .q-columns::before { display:none; } /* hide divider when printing */
+    }
 
-    /* OMR */
-    .omr-wrap { margin-top:18px; }
-    .omr-row { display:flex; align-items:center; gap:12px; padding:6px 0; border-bottom:1px solid #f1f1f1; }
-    .omr-bubble { width:22px; height:22px; border-radius:50%; border:2px solid #333; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:transparent; }
+    /* OMR - redesigned (compact) */
+    .omr-wrap { margin-top:12px; font-size:13px; }
+    .omr-header {
+        display:flex;
+        gap:10px;
+        align-items:center;
+        justify-content:center; /* center title since name/roll removed */
+        margin-bottom:8px;
+    }
+    .omr-info { display:none; } /* name/roll removed */
+    .info-boxes { display:flex; gap:8px; align-items:center; }
+    .info-box-single { display:none; } /* hide previous boxes */
+    .omr-title {
+        font-weight:700;
+        font-size:14px;
+        color:#222;
+    }
+
+    /* note shown only when OMR sheet visible (it's inside the OMR card) */
+    .omr-note {
+        font-size:12.5px;
+        color:#111;
+        background: #fff;
+        padding:8px 10px;
+        border-left:4px solid #222;
+        border-radius:3px;
+        margin-bottom:8px;
+        line-height:1.4;
+    }
+
+    /* multi-column flow for OMR rows (compact bubbles) */
+    .omr-list {
+        column-count: 3;
+        column-gap: 12px;
+    }
+    .omr-item {
+        display:flex;
+        align-items:center;
+        gap:8px;
+        padding:6px 4px;
+        border-bottom:1px dashed #f0f0f0;
+        break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .omr-qno {
+        width:28px;
+        font-weight:700;
+        font-size:14px;
+        text-align:center;
+        color:#111;
+    }
+
+    .omr-bubbles {
+        display:flex;
+        gap:8px;
+        align-items:center;
+        flex-wrap:nowrap;
+    }
+    .omr-bubble {
+        width:26px;
+        height:26px;
+        border-radius:50%;
+        border:2px solid #222;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        font-size:12px;
+        font-weight:600;
+        background:#fff;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    }
+
+    /* small screen: reduce columns to 1 */
+    @media (max-width:780px) {
+        .omr-list { column-count: 1; }
+        .omr-bubble { width:22px; height:22px; font-size:12px; }
+        .info-box-single { width:120px; height:26px; font-size:12px; padding:0 6px; }
+    }
 
     /* print */
     @media print {
         body { background: #fff; }
         .btn { display:none !important; }
         .paper { box-shadow:none; margin:0; max-width:100%; }
+        .omr-list { column-count: 3; }
     }
 
     /* replace/extend your existing styles with these for option layout */
@@ -126,7 +219,12 @@
             </div>
         {% endif %}
             <div class="instructions">প্রশ্নপত্রে কোনো প্রকার দাগ/চিহ্ন দেওয়া যাবেনা।</div>
+                 <!-- instruction/note (will only be visible when OMR card is visible) -->
+            <div class="omr-note">
+                দ্রষ্টব্যঃ সরবরাহকৃত বহুনির্বাচনি অভীক্ষার উত্তরপত্রে প্রশ্নের ক্রমিক নম্বরের বিপরীতে প্রদত্ত বর্ণসম্বলিত বৃত্তসমূহ হতে সঠিক উত্তরের বৃত্তটি ( ) বল পয়েন্ট কলম দ্বারা সম্পূর্ণ ভরাট করো।
+            </div>
     </div>
+
 
     <!-- <div class="info-row">
         <div>সময় — {{ duration|default:"৪৫" }} মিনিট</div>
@@ -178,7 +276,7 @@
 
     <div class="d-flex justify-content-between align-items-center mt-3">
         <div>
-            <button id="omrToggleBtn" class="btn btn-outline-primary btn-sm">
+            <button id="omrToggleBtn" class="btn btn-outline-info btn-sm">
                 {% if include_omr %}OMR দেখানো আছে{% else %}OMR দেখান{% endif %}
             </button>
         </div>
@@ -187,17 +285,27 @@
 
     <div id="omrSheet" class="omr-wrap" style="display: {% if include_omr %}block{% else %}none{% endif %};">
         <div class="card p-2">
-            {% for item in questions_with_index %}
-                <div class="omr-row">
-                    <div style="width:36px;">{{ item.bn_index }}</div>
-                    <div class="omr-bubbles" aria-hidden="true">
-                        <div class="omr-bubble">A</div>
-                        <div class="omr-bubble">B</div>
-                        <div class="omr-bubble">C</div>
-                        <div class="omr-bubble">D</div>
+            <!-- header: boxes for roll/name and small squares -->
+            <div class="omr-header">
+                <div class="omr-title">OMR উত্তরপত্র</div>
+            </div>
+
+       
+
+            <!-- OMR items flow into columns automatically -->
+            <div class="omr-list" aria-hidden="true">
+                {% for item in questions_with_index %}
+                    <div class="omr-item">
+                        <div class="omr-qno">{{ item.bn_index }}</div>
+                        <div class="omr-bubbles">
+                            <div class="omr-bubble">ক</div>
+                            <div class="omr-bubble">খ</div>
+                            <div class="omr-bubble">গ</div>
+                            <div class="omr-bubble">ঘ</div>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
@@ -208,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const omrSheet = document.getElementById('omrSheet');
     if (omrToggleBtn && omrSheet) {
         omrToggleBtn.addEventListener('click', () => {
-            const shown = omrSheet.style.display === 'block';
+            const shown = window.getComputedStyle(omrSheet).display !== 'none';
             omrSheet.style.display = shown ? 'none' : 'block';
             omrToggleBtn.textContent = shown ? 'OMR দেখান' : 'OMR দেখানো আছে';
         });
