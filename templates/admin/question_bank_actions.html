@@ -1,0 +1,144 @@
+<div class="admin-actions" role="group" aria-label="Question actions">
+    <a href="{% url 'questions:add' %}" class="btn btn-primary action-btn" title="Add প্রশ্ন">
+        <!-- icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span> Add প্রশ্ন</span>
+    </a>
+
+    <button id="uploadCsvBtn" class="btn btn-upload action-btn" title="Upload CSV" aria-haspopup="dialog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+            <path d="M12 3v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 11l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 21H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span> Upload CSV</span>
+    </button>
+
+    <input id="csvInput" type="file" accept=".csv,text/csv" style="display:none" aria-hidden="true" />
+
+    <span id="uploadStatus" class="upload-status" aria-live="polite"></span>
+</div>
+
+<style>
+/* admin actions - modern compact buttons */
+.admin-actions{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin:10px 0 16px;
+    flex-wrap:wrap;
+}
+
+/* base btn */
+.btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    border:0;
+    text-decoration:none;
+    color: #fff;
+    transition: transform .08s ease, box-shadow .12s ease, opacity .12s;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+}
+
+/* primary: gradient blue */
+.btn-primary{
+    background: linear-gradient(180deg,#2f8fff 0%, #0b6ee6 100%);
+    border: 1px solid rgba(11,110,230,0.12);
+}
+.btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(11,110,230,0.18); }
+.btn-primary:active{ transform: translateY(0); }
+
+/* upload: subtle outline with accent */
+.btn-upload{
+    background: #fff;
+    color: #0b6ee6;
+    border: 1px solid rgba(11,110,230,0.16);
+    box-shadow: 0 4px 12px rgba(12,80,160,0.04);
+}
+.btn-upload:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(11,110,230,0.08); }
+.btn-upload:active{ transform: translateY(0); }
+
+/* svg icon color inherit */
+.btn svg { color: currentColor; display:block; }
+
+/* upload status text */
+.upload-status{
+    font-size:13px;
+    color:#333;
+    margin-left:4px;
+    min-width:160px;
+}
+
+/* responsive: stack on small screens */
+@media (max-width:560px){
+    .admin-actions{ gap:8px; }
+    .btn{ padding:8px 10px; font-size:13px; border-radius:7px; }
+    .upload-status{ min-width:120px; font-size:12px; }
+}
+</style>
+
+<script>
+/* keep CSV upload behaviour here (adjust uploadUrl to your view) */
+function getCookie(name){
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i=0;i<cookies.length;i++){
+            const c = cookies[i].trim();
+            if (c.startsWith(name+'=')){ cookieValue = decodeURIComponent(c.slice(name.length+1)); break; }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadBtn = document.getElementById('uploadCsvBtn');
+    const fileInput = document.getElementById('csvInput');
+    const status = document.getElementById('uploadStatus');
+    const uploadUrl = '/admin/upload-csv/'; // <-- change to your real endpoint
+
+    if (!uploadBtn || !fileInput) return;
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+            status.textContent = 'দয়া করে .csv ফাইল নির্বাচন করুন।';
+            return;
+        }
+        status.textContent = 'আপলোড হচ্ছে…';
+        const form = new FormData();
+        form.append('csv_file', file);
+        try {
+            const res = await fetch(uploadUrl, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: form,
+            });
+            if (!res.ok) {
+                const txt = await res.text();
+                status.textContent = 'আপলোড ব্যর্থ: ' + res.status;
+                console.error('CSV upload error:', txt);
+                return;
+            }
+            const data = await res.json().catch(()=>null);
+            status.textContent = (data && data.message) ? data.message : 'আপলোড সফল।';
+        } catch (err) {
+            console.error(err);
+            status.textContent = 'অপ্রত্যাশিত ত্রুটি।';
+        } finally {
+            fileInput.value = '';
+            setTimeout(()=> status.textContent = '', 5000);
+        }
+    });
+});
+</script>
