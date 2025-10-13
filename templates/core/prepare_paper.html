@@ -3,10 +3,19 @@
 
 {% block content %}
 <style>
+    /* hide site header / top banner on this page (screen + print) */
+    header, .site-header, .site-nav, .main-header, .navbar {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     /* improved masthead + paper styling */
     .paper {
         max-width: 980px;
-        margin: 20px auto;
+        margin: 8px auto; /* reduced top margin after hiding header */
         padding: 22px 28px;
         background: #fff;
         color: #111;
@@ -74,7 +83,73 @@
         .school-title { font-size:22px; }
     }
     @media print {
-        .q-columns::before { display:none; } /* hide divider when printing */
+        /* force clean page margins and remove browser chrome spacing */
+        @page { size: A4; margin: 12mm; }
+        html, body {
+            background: #fff !important;
+            color: #000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+            height: auto !important;
+        }
+
+        /* hide interactive UI and site chrome on print */
+        .btn,
+        .pdf-download-btn,
+        header, .site-header, .site-nav,
+        .admin-actions,
+        .toolbar, .controls,
+        footer, .site-footer, .main-footer {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* make paper fill printable area and avoid extra blank page */
+        .paper {
+            box-shadow: none;
+            margin: 0 auto !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 8mm 10mm !important;
+            page-break-inside: avoid !important;
+        }
+
+        /* ensure columns and divider remain same as screen */
+        .q-columns {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 28px !important;
+            position: relative !important;
+            -webkit-column-break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .q-columns::before { display: block !important; }
+        .q-col { width: 50% !important; min-width: 0 !important; }
+
+        /* avoid forcing page-breaks that create blank pages */
+        .paper, .masthead, .q-columns, .q-col, .question, .options, .omr-wrap {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        /* keep OMR / option visuals */
+        .omr-list { column-count: 3; column-gap: 12px; }
+        .opt-circle, .omr-bubble, .omr-qno {
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+            background: #fff !important;
+        }
+
+        /* small tweaks to avoid orphaned headers */
+        h1, h2, h3, .masthead { page-break-after: avoid !important; page-break-before: avoid !important; }
+
+        /* NOTE: browser header/footer (URL, date, page#) is controlled by print dialog.
+           Turn off "Headers and footers" in print dialog to remove them. */
     }
 
     /* OMR - redesigned (compact) */
