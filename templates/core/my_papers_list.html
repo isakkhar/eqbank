@@ -41,14 +41,50 @@
                                 </td>
                                 <td>{{ paper.class_level.name }}</td>
                                 <td>
-                                    {% if paper.question_type == 'mcq' %}
-                                        <span class="badge bg-primary">বহু নির্বাচনি</span>
-                                    {% elif paper.question_type == 'creative' %}
-                                        <span class="badge bg-success">সৃজনশীল</span>
-                                    {% else %}
-                                        <span class="badge bg-info">সমন্বিত</span>
-                                    {% endif %}
-                                </td>
+                                    {# Normalize to string and remove common noise, then check substrings #}
+                                    {% with raw=paper.question_type|stringformat:"s"|default:'' %}
+                                        {% with qt=raw|lower|cut:"'"|cut:'"'|cut:"["|cut:"]"|cut:" " %}
+                                            {% if "mcq" in qt or "multiple" in qt or "objective" in qt or "বহু" in qt %}
+                                                <span class="badge bg-primary" title="{{ raw }}">বহু নির্বাচনি</span>
+                                            {% elif "creative" in qt or "subjective" in qt or "সৃজন" in qt %}
+                                                <span class="badge bg-success" title="{{ raw }}">সৃজনশীল</span>
+                                            {% elif "combined" in qt or "mix" in qt or "সমন্বিত" in qt %}
+                                                {% with first_q=paper.questions.all.0 %}
+                                                    {% if first_q %}
+                                                        {% with fq=first_q.question_type|stringformat:"s"|lower %}
+                                                            {% if "mcq" in fq or "বহু" in fq %}
+                                                                <span class="badge bg-primary" title="{{ raw }}">বহু নির্বাচনি</span>
+                                                            {% elif "creative" in fq or "subjective" in fq or "সৃজন" in fq %}
+                                                                <span class="badge bg-success" title="{{ raw }}">সৃজনশীল</span>
+                                                            {% else %}
+                                                                <span class="badge bg-info" title="{{ raw }}">সমন্বিত</span>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    {% else %}
+                                                        <span class="badge bg-info" title="{{ raw }}">সমন্বিত</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% else %}
+                                                {# fallback: if question_type is not informative, infer from first question if exists #}
+                                                {% with first_q=paper.questions.all.0 %}
+                                                    {% if first_q %}
+                                                        {% with fq=first_q.question_type|stringformat:"s"|lower %}
+                                                            {% if "mcq" in fq or "বহু" in fq %}
+                                                                <span class="badge bg-primary" title="{{ raw }}">বহু নির্বাচনি</span>
+                                                            {% elif "creative" in fq or "subjective" in fq or "সৃজন" in fq %}
+                                                                <span class="badge bg-success" title="{{ raw }}">সৃজনশীল</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary" title="{{ raw }}">{{ raw|default:"—" }}</span>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    {% else %}
+                                                        <span class="badge bg-secondary" title="{{ raw }}">{{ raw|default:"—" }}</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                 </td>
                                 <td>{{ paper.questions.count }} টি</td>
                                 <td>{{ paper.created_at|date:"d M Y, h:i A" }}</td>
                                 <td class="text-center">
@@ -231,71 +267,65 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function()
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken
         },
+        body: JSON.stringify({})
     })
-    .then(response => {
+    .then(async response => {
+        // restore button quickly (will be disabled again in finally if needed)
         if (!response.ok) {
-            // Handle HTTP errors like 404 or 500
-            return response.json().then(err => { throw new Error(err.message || 'Server error'); });
+            // try to parse JSON error message
+            let errText = 'সার্ভারে ত্রুটি ঘটেছে';
+            try {
+                const j = await response.json();
+                errText = j.error || j.message || errText;
+            } catch (e) {}
+            throw new Error(errText);
         }
-        return response.json();
+        // try to parse json, but it's optional
+        try {
+            return await response.json();
+        } catch (e) {
+            return { success: true, message: '' };
+        }
     })
     .then(data => {
-        if (data.success) {
-            // If successful, remove the table row with a fade-out animation
-            const row = document.getElementById(`paper-row-${paperToDelete}`);
-            if (row) {
-                row.style.transition = 'opacity 0.4s ease-out';
-                row.style.opacity = '0';
-                setTimeout(() => {
-                    row.remove();
-                    // If the table body is now empty, reload the page to show the "No papers found" message
-                    const tbody = document.querySelector('tbody');
-                    if (tbody && tbody.children.length === 0) {
-                        location.reload();
-                    }
-                }, 400);
-            }
+        // remove the row from the table
+        const row = document.getElementById(`paper-row-${paperToDelete}`);
+        if (row) row.remove();
 
-            showToast(data.message, 'success');
-            deleteModal.hide();
-        } else {
-            // If the server returns success=false
-            showToast(data.message, 'danger');
-        }
+        deleteModal.hide();
+        showToast(data.message || 'পেপারটি মুছে ফেলা হয়েছে', 'bg-success');
     })
-    .catch(error => {
-        // Handle network errors or errors thrown from the response
-        console.error('Error:', error);
-        showToast(error.message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'danger');
+    .catch(err => {
+        showToast(err.message || 'মুছে ফেলতে ব্যর্থ হয়েছে', 'bg-danger');
     })
     .finally(() => {
-        // Re-enable the button and restore its original text
         btn.disabled = false;
         btn.innerHTML = originalText;
-        paperToDelete = null; // Reset the paper ID
+        paperToDelete = null;
     });
-});
 
 /**
- * Displays a toast notification.
- * @param {string} message - The message to show.
- * @param {string} type - The type of toast ('success' or 'danger').
+ * Show a bootstrap toast with a message and optional background class.
+ * @param {string} message
+ * @param {string} bgClass - e.g. 'bg-success' or 'bg-danger'
  */
-function showToast(message, type) {
-    const toastElement = document.getElementById('deleteToast');
-    const toastMessage = document.getElementById('toastMessage');
+function showToast(message, bgClass = 'bg-success') {
+    const toastEl = document.getElementById('deleteToast');
+    const toastBody = document.getElementById('toastMessage');
+    if (!toastEl || !toastBody) return;
 
-    // Remove previous color classes and add the new one
-    toastElement.classList.remove('bg-success', 'bg-danger');
-    toastElement.classList.add(`bg-${type}`);
+    toastBody.textContent = message;
 
-    // Set the icon and message
-    const iconClass = type === 'success' ? 'ti-check' : 'ti-alert-circle';
-    toastMessage.innerHTML = `<i class="ti ${iconClass} me-2"></i>${message}`;
+    const toastRoot = toastEl.querySelector('.toast');
+    // remove common bg classes before adding the new one
+    ['bg-success', 'bg-danger', 'bg-secondary'].forEach(c => toastRoot.classList.remove(c));
+    toastRoot.classList.add(bgClass);
 
-    deleteToast.show();
+    const bsToast = bootstrap.Toast.getOrCreateInstance(toastEl);
+    bsToast.show();
 }
 </script>
 {% endblock %}

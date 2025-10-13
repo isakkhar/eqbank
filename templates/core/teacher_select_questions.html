@@ -25,7 +25,7 @@
         <div class="row align-items-end">
             <div class="col-md-auto mb-3">
                 <label for="classSelect" class="form-label fw-semibold">ক্লাস</label>
-                <select name="class_id" id="classSelect" class="form-select" required style="width: 200px;">
+                <select name="class_id" id="classSelect" class="form-select" style="width: 200px;">
                     <option value="">-- ক্লাস নির্বাচন করুন --</option>
                     {% for c in classes %}
                         <option value="{{ c.id }}" {% if request.GET.class_id == c.id|stringformat:"s" %}selected{% endif %}>
@@ -37,7 +37,7 @@
 
             <div class="col-md-auto mb-3">
                 <label for="subjectSelect" class="form-label fw-semibold">বিষয়</label>
-                <select name="subject_id" id="subjectSelect" class="form-select" required style="width: 200px;">
+                <select name="subject_id" id="subjectSelect" class="form-select" style="width: 200px;">
                     <option value="">-- বিষয় নির্বাচন করুন --</option>
                     {% for s in subjects %}
                         <option value="{{ s.id }}" {% if request.GET.subject_id == s.id|stringformat:"s" %}selected{% endif %}>
@@ -60,7 +60,7 @@
         <div class="row align-items-end">
              <div class="col-md-auto mb-3">
                 <label for="questionTypeSelect" class="form-label fw-semibold">প্রশ্নের ধরন</label>
-                <select name="question_type" id="questionTypeSelect" class="form-select" required style="width: 200px;">
+                <select name="question_type" id="questionTypeSelect" class="form-select" style="width: 200px;">
                     <option value="">-- প্রশ্নের ধরন --</option>
                     <option value="mcq" {% if request.GET.question_type == "mcq" %}selected{% endif %}>বহু নির্বাচনি</option>
                     <option value="creative" {% if request.GET.question_type == "creative" %}selected{% endif %}>সৃজনশীল</option>
@@ -79,8 +79,16 @@
         </div>
     </form>
 
-    {% if show_questions %}
+    {% if questions %}
         <hr>
+
+        <!-- DEBUG: দেখাবে GET পারামস ও questions count
+        <div class="alert alert-warning">
+            <strong>DEBUG:</strong>
+            <div>request.GET: {{ request.GET }}</div>
+            <div>questions count: {{ questions|length }}</div>
+        </div> -->
+
         <form method="post" action="{% url 'prepare_paper' %}">
             {% csrf_token %}
             <div>

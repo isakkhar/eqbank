@@ -308,20 +308,22 @@ def question_ready(request):
 
 @login_required
 def my_papers_list(request):
-    """Display all question papers created by the current user in a table with pagination"""
-    papers_list = QuestionPaper.objects.filter(creator=request.user).order_by('-created_at')
+    """Display papers created by current user and any papers with null creator (fallback)."""
+    from django.db.models import Q
 
-    # Pagination: 10 papers per page
+    # include papers created by user OR with null creator
+    papers_list = QuestionPaper.objects.filter(
+        Q(creator=request.user) | Q(creator__isnull=True)
+    ).order_by('-created_at')
+
     paginator = Paginator(papers_list, 10)
     page_number = request.GET.get('page', 1)
 
     try:
         papers = paginator.page(page_number)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page
         papers = paginator.page(1)
     except EmptyPage:
-        # If page is out of range, deliver last page of results
         papers = paginator.page(paginator.num_pages)
 
     return render(request, 'core/my_papers_list.html', {'papers': papers})
@@ -602,6 +604,70 @@ def delete_paper(request, paper_id):
             'success': False,
             'message': f'একটি সমস্যা হয়েছে: {str(e)}'
         }, status=500)
+
+from django.shortcuts import render
+from django.apps import apps
+from core.models import Question
+
+# try to load optional models; if missing, fallback to deriving lists from Question records
+try:
+    ClassLevel = apps.get_model('core', 'ClassLevel')
+except LookupError:
+    ClassLevel = None
+
+try:
+    Subject = apps.get_model('core', 'Subject')
+except LookupError:
+    Subject = None
+
+def teacher_select_questions(request):
+    # build classes and subjects lists — prefer real models if available,
+    # otherwise derive from Question records so page still works.
+    if ClassLevel is not None:
+        classes = ClassLevel.objects.all()
+    else:
+        # list of dicts with id/name keys (template can use c.id and c.name)
+        classes = []
+        for c in Question.objects.values('class_name_id', 'class_name__name').distinct().order_by('class_name_id'):
+            classes.append({'id': c['class_name_id'], 'name': c.get('class_name__name') or f'Class {c["class_name_id"]}'})
+    if Subject is not None:
+        subjects = Subject.objects.all()
+    else:
+        subjects = []
+        for s in Question.objects.values('subject_id', 'subject__name').distinct().order_by('subject_id'):
+            subjects.append({'id': s['subject_id'], 'name': s.get('subject__name') or f'Subject {s["subject_id"]}'})
+
+    questions = []
+    show_questions = False
+
+    class_id = request.GET.get('class_id')
+    subject_id = request.GET.get('subject_id')
+    qcount = int(request.GET.get('question_count') or 20)
+    qtype = request.GET.get('question_type')
+    chapter_ids = request.GET.get('chapter_ids')
+
+    if class_id and subject_id:
+        qs = Question.objects.filter(class_name_id=class_id, subject_id=subject_id)
+        if qtype:
+            qs = qs.filter(question_type__iexact=qtype)
+        if chapter_ids:
+            ids = [int(x) for x in chapter_ids.split(',') if x.strip()]
+            qs = qs.filter(chapter__id__in=ids)
+        questions = qs.order_by('id')[:qcount]
+        show_questions = True
+    else:
+        # fallback: show recent questions so page never empty during testing
+        qs = Question.objects.all().order_by('-id')
+        if qs.exists():
+            questions = qs[:qcount]
+            show_questions = True
+
+    return render(request, 'core/teacher_select_questions.html', {
+        'classes': classes,
+        'subjects': subjects,
+        'questions': questions,
+        'show_questions': show_questions,
+    })
 
 
 

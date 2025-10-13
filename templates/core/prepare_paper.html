@@ -355,7 +355,12 @@
                 {% if include_omr %}OMR দেখানো আছে{% else %}OMR দেখান{% endif %}
             </button>
         </div>
-        <div><a href="#" onclick="window.print(); return false;" class="btn btn-secondary btn-sm">প্রিন্ট</a></div>
+        <div class="d-flex align-items-center" style="gap:8px;">
+            <button id="pdfDownloadBtn" class="btn btn-info btn-sm" title="PDF ডাউনলোড">
+                PDF ডাউনলোড
+            </button>
+            <a href="#" id="printBtn" class="btn btn-warning btn-sm">প্রিন্ট</a>
+        </div>
     </div>
 
     <div id="omrSheet" class="omr-wrap" style="display: {% if include_omr %}block{% else %}none{% endif %};">
@@ -394,6 +399,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const shown = window.getComputedStyle(omrSheet).display !== 'none';
             omrSheet.style.display = shown ? 'none' : 'block';
             omrToggleBtn.textContent = shown ? 'OMR দেখান' : 'OMR দেখানো আছে';
+        });
+    }
+
+    // PDF / print handlers
+    const pdfBtn = document.getElementById('pdfDownloadBtn');
+    const printBtn = document.getElementById('printBtn');
+    function hideControlsForPrint() {
+        const controls = document.querySelectorAll('.btn, .pdf-download-btn, .admin-actions');
+        controls.forEach(el => el.style.visibility = 'hidden');
+        return controls;
+    }
+    function restoreControls(controls) {
+        setTimeout(() => controls.forEach(el => el.style.visibility = ''), 800);
+    }
+
+    if (pdfBtn) {
+        pdfBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const controls = hideControlsForPrint();
+            // Trigger browser print (user can choose "Save as PDF")
+            window.print();
+            restoreControls(controls);
+        });
+    }
+    if (printBtn) {
+        printBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const controls = hideControlsForPrint();
+            window.print();
+            restoreControls(controls);
         });
     }
 });
